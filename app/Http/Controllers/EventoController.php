@@ -27,7 +27,7 @@ class EventoController extends Controller
         $evento->descripcion = $request->descripcion;
         $evento->fecha = $request->fecha;
         $evento->ubicacion = $request->ubicacion;
-        $evento->id_proveedor = 1; // Asigna un proveedor fijo o el que corresponda
+        $evento->id_proveedor = 1; // Asignar proveedor por defecto, se puede cambiar según la lógica de tu aplicación
 
         // si hay imagen
         if ($request->hasFile('imagen')) {
@@ -36,9 +36,7 @@ class EventoController extends Controller
         }
 
         $evento->save();
-
-        // Redirige a la lista de eventos con mensaje de éxito
-        return redirect()->route('admin.eventos.index')->with('success', 'Evento registrado correctamente');
+        return redirect()->route('admin.eventos.index')->with('success', 'Evento registrado');
     }
 
     public function edit($id)
@@ -61,7 +59,6 @@ class EventoController extends Controller
         Evento::destroy($id);
         return back()->with('success', 'Evento eliminado');
     }
-
     public function gestionar($id)
     {
         $evento = \App\Models\Evento::findOrFail($id);

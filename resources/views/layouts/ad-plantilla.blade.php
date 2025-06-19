@@ -18,15 +18,25 @@
 
 <body class="bg-gray-100">
 
-    <!-- Barra superior (franja con imagen y logo) -->
-    <header class="h-20 flex items-center px-6 shadow bg-cover bg-center"
+    <!-- Barra superior solo con logo y botón cerrar sesión (para administrador) -->
+    <header class="h-20 flex items-center justify-between px-6 shadow bg-cover bg-center"
         style="background-image: url('{{ asset('images/degradado.jpg') }}');">
+        <!-- Logo -->
         <div>
             <a href="/">
                 <img src="{{ asset('images/logo.png') }}" alt="TicketGO Logo" class="w-32">
             </a>
         </div>
+
+        <!-- Botón Cerrar sesión -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="text-white text-sm font-semibold hover:underline">
+                CERRAR SESIÓN
+            </button>
+        </form>
     </header>
+
 
 
     <!-- Navegación tipo botones para administrador -->

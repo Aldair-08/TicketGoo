@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Proveedor;
 use Illuminate\Http\Request;
 
@@ -28,19 +29,19 @@ class ProveedorController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $request->validate([
-        'nombre' => 'required|string|max:255',
-        'correo' => 'required|email|max:255',
-        'telefono' => 'nullable|string|max:20',
-        'empresa' => 'nullable|string|max:255',
-        'estado' => 'required|in:ACTIVO,INACTIVO',
-    ]);
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'correo' => 'required|email|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'empresa' => 'nullable|string|max:255',
+            'estado' => 'required|in:ACTIVO,INACTIVO',
+        ]);
 
-    Proveedor::create($request->all());
+        Proveedor::create($request->all());
 
-    return redirect()->route('admin.proveedores.index')->with('success', 'Proveedor creado correctamente.');
-}
+        return redirect()->route('admin.proveedores.index')->with('success', 'Proveedor creado correctamente.');
+    }
 
     /**
      * Display the specified resource.

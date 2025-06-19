@@ -5,7 +5,6 @@
 
         <div class="flex space-x-6 mb-6 text-sm font-semibold">
             <button class="text-blue-800">Usuario</button>
-            <button class="text-black">Administrador</button>
         </div>
 
         <form wire:submit.prevent="register" class="flex flex-col space-y-4" novalidate>

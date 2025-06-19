@@ -1,9 +1,9 @@
 <x-layouts.plantilla>
     <main class="flex flex-1 flex-col md:flex-row px-8 md:px-16 py-6 gap-8 md:gap-16 max-w-7xl mx-auto w-full">
         <section class="flex flex-col max-w-md w-full">
-            <div class="flex space-x-6 mb-6 text-sm font-semibold">
-                <a href="{{ route('login') }}" class="text-blue-800">Usuario</a>
-                <button class="text-black hover:text-blue-800">Administrador</button>
+            <div class="flex space-x-6 mb-4 text-sm font-semibold">
+                <a href="{{ route('login') }}" class="text-black hover:text-blue-800">Usuario</a>
+                <button class="text-blue-800">Administrador</button>
             </div>
 
             @if (session('status'))
@@ -18,36 +18,34 @@
                 </div>
             @endif
 
-        <form method="POST" action="{{ route('admin.login.post') }}" class="flex flex-col space-y-6">
-            @csrf
+            <form method="POST" action="{{ route('admin.login.post') }}" class="flex flex-col space-y-6">
+                @csrf
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-gray-600 text-sm font-normal" for="email">Correo electrónico</label>
-                <input
-                    class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="email" name="email" type="email" placeholder="Ej: jose@gmail.com" required />
-            </div>
+                <div class="flex flex-col space-y-1">
+                    <label class="text-gray-600 text-sm font-normal" for="email">Correo electrónico</label>
+                    <input
+                        class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        id="email" name="email" type="email" placeholder="Ej: jose@gmail.com" required />
+                </div>
 
-            <div class="flex flex-col space-y-1">
-                <label class="text-gray-600 text-sm font-normal" for="password">Contraseña</label>
-                <input
-                    class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="password" name="password" type="password" placeholder="Contraseña" required />
-            </div>
+                <div class="flex flex-col space-y-1">
+                    <label class="text-gray-600 text-sm font-normal" for="password">Contraseña</label>
+                    <input
+                        class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        id="password" name="password" type="password" placeholder="Contraseña" required />
+                </div>
 
-            <div class="flex items-center space-x-3 bg-gray-300 rounded px-4 py-2 w-max">
-                <input class="w-5 h-5" id="robot" name="robot" type="checkbox" required />
-                <label class="text-xs font-bold select-none" for="robot">No soy un robot</label>
-                <img src="{{ asset('images/recapcha.png') }}" class="h-6 w-auto object-contain rounded shadow" />
-            </div>
+                <div class="flex items-center space-x-3 bg-gray-300 rounded px-4 py-2 w-max">
+                    <input class="w-5 h-5" id="robot" name="robot" type="checkbox" required />
+                    <label class="text-xs font-bold select-none" for="robot">No soy un robot</label>
+                    <img src="{{ asset('images/recapcha.png') }}" class="h-6 w-auto object-contain rounded shadow" />
+                </div>
 
-            <button type="submit" class="btn-yellow w-full text-center">Iniciar Sesión</button>
-        </form>
-
-            <div class="mt-4 text-sm text-gray-600">
-                <a href="{{ route('password.request') }}" class="text-blue-800 hover:underline">¿Olvidaste tu contraseña?</a>
-            </div>
-
+                <button type="submit"
+                    class="w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded shadow">
+                    Iniciar Sesión
+                </button>
+            </form>
         </section>
 
         <section class="flex-1 max-w-lg">
