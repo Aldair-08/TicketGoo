@@ -14,14 +14,15 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DocumentoController;
 use App\Models\Compra;
 
-Route::get('/', [App\Http\Controllers\EventoController::class, 'index'])->name('welcome');
+Route::get('/', [EventoController::class, 'explorar'])->name('welcome');
+Route::get('/usuario/principallog', [EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
 
 
 // Ruta principal y alias
-Route::view('/', 'welcome')->name('welcome');
+/*Route::view('/', 'welcome')->name('welcome');
 Route::get('/inicio', function () {
     return view('welcome');
-})->name('inicio');
+})->name('inicio');*/
 
 // Dashboard protegido
 Route::view('dashboard', 'dashboard')
@@ -37,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Página principal
-Route::view('/', 'welcome')->name('welcome');
+/*Route::view('/', 'welcome')->name('welcome');*/
 
 // Página de "Sobre Nosotros"
 Route::view('/nosotros', 'nosotros')->name('nosotros');
@@ -49,7 +50,7 @@ Route::view('/como-comprar-entradas', 'comprar')->name('comprar');
 Route::view('/como-funcionan-etickets', 'funciona')->name('funciona');
 
 // Rutas de usuario específicas
-Route::view('/principallog', 'usuario.principallog')->name('pagina.principallog');
+//Route::view('/principallog', 'usuario.principallog')->name('pagina.principallog');
 Route::get('/duki', function () {
     return view('usuario.duki');
 })->name('evento.duki');

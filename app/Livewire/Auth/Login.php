@@ -20,10 +20,10 @@ class Login extends Component
 
     #[Validate('required|string')]
     public string $password = '';
-    
+
     public bool $remember = false;
 
-     #[Validate('accepted')]
+    #[Validate('accepted')]
     public bool $robot = false; //  validación 
 
     /**
@@ -31,7 +31,7 @@ class Login extends Component
      */
     public function login(): void
     {
-            $this->validate();
+        $this->validate();
 
         $this->ensureIsNotRateLimited();
 
@@ -45,8 +45,8 @@ class Login extends Component
 
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
-         #AQUI ESTAMOS REDIRIGIENDO A LA PAGINA PRINCIPAL DESPUES DE INICIAR SESION
-        $this->redirect(route('pagina.principallog', absolute: false), navigate: true);
+        #AQUI ESTAMOS REDIRIGIENDO A LA PAGINA PRINCIPAL DESPUES DE INICIAR SESION
+        $this->redirect(route('usuario.principallog', absolute: false), navigate: true);
     }
 
     /**
@@ -75,7 +75,6 @@ class Login extends Component
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
-
 }
