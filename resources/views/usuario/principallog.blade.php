@@ -36,21 +36,23 @@
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
 
         @foreach ($eventos as $evento)
-            <article
-                class="border border-gray-300 rounded-lg overflow-hidden shadow-sm transition transform duration-200 hover:scale-[1.02] hover:shadow-lg continueBtn"
-                tabindex="0" data-img="{{ asset('images/Eventodeyvis.jpg') }}">
-                <img src="{{ $evento->imagen ? asset('storage/' . $evento->imagen) : asset('images/default-event.jpg') }}"
-                    class="w-full h-[240px] object-cover" />
-                <div class="p-3 text-xs text-gray-700">
-                    <p class="mb-1">{{ $evento->categoria }}</p>
-                    <p class="font-semibold mt-2">{{ $evento->nombre }}</p>
-                    <p class="font-bold mb-1">{{ $evento->ubicacion }}</p>
-
-                    <p class="text-yellow-400 font-semibold">
-                        {{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('d M, H:i') }}</p>
-
-                </div>
-            </article>
+            @if ($evento && $evento->id_evento)
+                <a href="{{ route('evento.show', $evento->id_evento) }}">
+                    <article
+                        class="border border-gray-300 rounded-lg overflow-hidden shadow-sm transition transform duration-200 hover:scale-[1.02] hover:shadow-lg continueBtn"
+                        tabindex="0">
+                        <img src="{{ $evento->imagen ? asset('storage/' . $evento->imagen) : asset('images/default-event.jpg') }}"
+                            class="w-full h-[240px] object-cover" />
+                        <div class="p-3 text-xs text-gray-700">
+                            <p class="mb-1">{{ $evento->categoria }}</p>
+                            <p class="font-semibold mt-2">{{ $evento->nombre }}</p>
+                            <p class="font-bold mb-1">{{ $evento->ubicacion }}</p>
+                            <p class="text-yellow-400 font-semibold">
+                                {{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('d M, H:i') }}</p>
+                        </div>
+                    </article>
+                </a>
+            @endif
         @endforeach
     </section>
     <div id="successModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50">

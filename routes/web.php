@@ -15,7 +15,7 @@ use App\Http\Controllers\DocumentoController;
 use App\Models\Compra;
 
 Route::get('/', [EventoController::class, 'explorar'])->name('welcome');
-Route::get('/usuario/principallog', [EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
+Route::get('/usuario/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
 
 
 // Ruta principal y alias
@@ -137,5 +137,8 @@ Route::prefix('admin')->group(function () {
 });
 
 Route::get('/eventos', [App\Http\Controllers\EventoController::class, 'publicos'])->name('eventos.publicos');
+
+//nuevo
+Route::get('/evento/{id}', [App\Http\Controllers\EventoController::class, 'show'])->name('evento.show');
 
 require __DIR__ . '/auth.php';

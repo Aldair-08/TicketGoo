@@ -9,13 +9,21 @@ class Evento extends Model
     protected $primaryKey = 'id_evento';
 
     protected $fillable = [
-        'nombre', 'categoria', 'descripcion', 'fecha', 'ubicacion', 'id_proveedor', 'imagen'
+        'nombre',
+        'categoria',
+        'descripcion',
+        'fecha',
+        'ubicacion',
+        'id_proveedor',
+        'imagen'
     ];
 
     public function proveedor()
     {
         return $this->belongsTo(Proveedor::class, 'id_proveedor', 'id_proveedor');
     }
-
-
+    public function entradas()
+    {
+        return $this->hasMany(\App\Models\Entrada::class, 'evento_id', 'id_evento');
+    }
 }

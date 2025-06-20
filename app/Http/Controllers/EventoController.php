@@ -115,7 +115,14 @@ class EventoController extends Controller
 
     public function usuarioEventos()
     {
-        $eventos = \App\Models\Evento::where('publicado', true)->get();
+        $eventos = \App\Models\Evento::where('publicado', 1)->get();
         return view('usuario.principallog', compact('eventos'));
+    }
+
+    //nuevo
+    public function show($id)
+    {
+        $evento = Evento::with('entradas')->findOrFail($id);
+        return view('usuario.detalleevento', compact('evento'));
     }
 }
