@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\Compra;
 use App\Models\CompraDetalle;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CompraController extends Controller
 {
@@ -205,7 +207,7 @@ class CompraController extends Controller
     {
         $compra = Compra::with(['detalles', 'usuario'])->findOrFail($id);
 
-        return view('usuario.vaucherduki', compact('compra'));
+        return view('usuario.vaucher', compact('compra'));
     }
 
     public function vistaVaucher()
@@ -222,7 +224,7 @@ class CompraController extends Controller
             return redirect()->route('home')->with('error', 'Compra no encontrada.');
         }
 
-        return view('usuario.vaucherduki', ['compra' => $compra]); 
+        return view('usuario.vaucherduki', ['compra' => $compra]);
     }
 
 
@@ -248,5 +250,44 @@ class CompraController extends Controller
         });
 
         return view('usuario.identificadorduki', compact('compra', 'resumen', 'totalFinal'));
+    }
+    //nuevo
+    public function index($id_evento)
+    {
+        $evento = \App\Models\Evento::with('entradas')->where('id_evento', $id_evento)->firstOrFail();
+        return view('usuario.comprar', compact('evento'));
+    }
+
+    public function procesarCompra(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            foreach ($request->entradas as $entradaId => $cantidad) {
+                $entrada = \App\Models\Entrada::find($entradaId);
+                if (!$entrada || $entrada->stock < $cantidad) {
+                    throw new \Exception('Stock insuficiente para una de las entradas.');
+                }
+                $entrada->stock -= $cantidad;
+                $entrada->save();
+            }
+            // Aquí puedes registrar la compra en otra tabla si lo necesitas
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function descargarBoleta(Request $request)
+    {
+        // Recibe los datos de la compra desde el frontend
+        $data = $request->all();
+
+        // Renderiza una vista Blade como PDF
+        $pdf = Pdf::loadView('usuario.boleta_pdf', $data)->setPaper([0, 0, 350, 580]);
+
+        // Descarga el archivo
+        return $pdf->download('boleta_ticketgo.pdf');
     }
 }

@@ -16,7 +16,7 @@
             <dl class="grid grid-cols-1 gap-6 text-sm text-gray-700">
                 <div>
                     <dt class="font-semibold">Evento</dt>
-                    <dd>DUKI - AMERI WORLD TOUR 2025</dd>
+                    <dd>{{ $compra->detalles->first()->evento->nombre ?? 'Evento' }}</dd>
                 </div>
                 <div>
                     <dt class="font-semibold">Fecha y Hora</dt>
@@ -41,16 +41,21 @@
                     <dd>TG-{{ $compra->id }}</dd>
                 </div>
                 <div>
-                    <dt class="font-semibold">Método de Pago</dt>
-                    <dd>Tarjeta de crédito</dd> {{-- Puedes hacerlo dinámico si lo guardas --}}
-                </div>
-                <div>
                     <dt class="font-semibold">Comprador</dt>
                     <dd>{{ $compra->usuario->name ?? 'Usuario' }}</dd>
                 </div>
+                <div>
+                    <dt class="font-semibold">Correo</dt>
+                    <dd>{{ $compra->usuario->email ?? '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">DNI</dt>
+                    <dd>{{ $compra->usuario->dni ?? '-' }}</dd>
+                </div>
             </dl>
 
-            <div class="mt-10 flex justify-center">
+            <div class="mt-10 flex flex-col items-center gap-4">
+                <a href="{{ route('boleto.descargar', $compra->id) }}" class="btn btn-primary" target="_blank">Descargar Boleto PDF</a>
                 <button onclick="window.print();" class="bg-black text-white uppercase font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-gray-900 transition">
                     Imprimir Voucher
                 </button>

@@ -12,7 +12,7 @@ use App\Http\Controllers\PromocionController;
 use App\Http\Controllers\CompraDetalleController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DocumentoController;
-use App\Models\Compra;
+/*use App\Models\Compra;*/
 
 Route::get('/', [EventoController::class, 'explorar'])->name('welcome');
 Route::get('/usuario/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
@@ -51,7 +51,7 @@ Route::view('/como-funcionan-etickets', 'funciona')->name('funciona');
 
 // Rutas de usuario específicas
 //Route::view('/principallog', 'usuario.principallog')->name('pagina.principallog');
-Route::get('/duki', function () {
+/*Route::get('/duki', function () {
     return view('usuario.duki');
 })->name('evento.duki');
 Route::get('/compraduki', function () {
@@ -59,7 +59,7 @@ Route::get('/compraduki', function () {
 })->name('usuario.compraduki');
 Route::get('/identificadorduki', function () {
     return view('usuario.identificadorduki');
-})->name('usuario.identificadorduki');
+})->name('usuario.identificadorduki');*/
 
 Route::get('/etickets', function () {
     return view('usuario.etickets');
@@ -70,7 +70,7 @@ Route::get('/compras', function () {
 })->name('usuario.compras');
 
 //ruta nueva para no mostrar al usuario si no se a iniciado session
-Route::get('/dukipreview', function () {
+/*Route::get('/dukipreview', function () {
     return view('usuario.dukipreview');
 })->name('usuario.dukipreview');
 
@@ -86,7 +86,7 @@ Route::get('/vaucherduki', function () {
         'compra' => $compra,
         'detalles' => $compra->detalles,
     ]);
-})->name('usuario.vaucherduki');
+})->name('usuario.vaucherduki');*/
 
 
 // Rutas para compra, pago y documentos
@@ -138,7 +138,10 @@ Route::prefix('admin')->group(function () {
 
 Route::get('/eventos', [App\Http\Controllers\EventoController::class, 'publicos'])->name('eventos.publicos');
 
-//nuevo
 Route::get('/evento/{id}', [App\Http\Controllers\EventoController::class, 'show'])->name('evento.show');
+//nuevo
+Route::get('/comprar/{id_evento}', [App\Http\Controllers\CompraController::class, 'index'])->name('comprar.index');
+Route::post('/comprar/procesar', [CompraController::class, 'procesarCompra'])->middleware('auth');
 
+Route::post('/comprar/boleta', [CompraController::class, 'descargarBoleta'])->middleware('auth');
 require __DIR__ . '/auth.php';

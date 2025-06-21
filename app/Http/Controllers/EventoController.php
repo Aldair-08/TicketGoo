@@ -119,7 +119,6 @@ class EventoController extends Controller
         return view('usuario.principallog', compact('eventos'));
     }
 
-    //nuevo
     public function show($id)
     {
         $evento = Evento::with('entradas')->findOrFail($id);
