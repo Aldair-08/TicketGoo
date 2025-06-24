@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Evento;
 use App\Models\Proveedor;
+use App\Models\Carrusel;
 use Illuminate\Http\Request;
 
 class EventoController extends Controller
@@ -121,7 +122,8 @@ class EventoController extends Controller
     public function usuarioEventos()
     {
         $eventos = \App\Models\Evento::where('publicado', 1)->get();
-        return view('usuario.principallog', compact('eventos'));
+        $imagenes = Carrusel::all();
+        return view('usuario.principallog', compact('eventos', 'imagenes'));
     }
 
     public function show($id)

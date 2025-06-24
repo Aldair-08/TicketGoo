@@ -1,5 +1,5 @@
 @extends('layouts.ad-plantilla')
-@section('titulo', 'Gestión de Promociones')
+
 @section('contenido')
     <!-- Gestión de Promociones -->
     <div class="w-full bg-white p-8 shadow-md mt-8 rounded-md">
@@ -49,8 +49,8 @@
                                     @method('DELETE')
                                     <button type="submit"
                                         onclick="return confirm('¿Estás seguro de eliminar esta promoción?')"
-                                        class="px-4 py-1 text-sm font-semibold text-red-600 border border-red-600 
-                                        rounded hover:bg-red-600 hover:text-white transition">
+                                        class="px-4 py-1 text-sm font-semibold text-yellow-600 border border-yellow-600 
+                                        rounded hover:bg-yellow-600 hover:text-white transition">
                                         Eliminar
                                     </button>
                                 </form>

@@ -3,48 +3,42 @@
     <div class="w-full max-w-8xl mx-auto">
         <br>
         <div class="relative overflow-hidden h-[650px] mb-6" id="custom-carousel">
-            @php
-                $imagenes = [
-                    ['src' => asset('images/trueno.jpg'), 'alt' => 'Evento Trueno'],
-                    ['src' => asset('images/duki.jpg'), 'alt' => 'Evento Duki'],
-                    ['src' => asset('images/emilia.jpg'), 'alt' => 'Evento Emilia'],
-                    ['src' => asset('images/dualipa.jpg'), 'alt' => 'Dualipa'],
-                    ['src' => asset('images/badbunny.jpg'), 'alt' => 'Evento Bad Bunny'],
-                ];
-            @endphp
-            @foreach ($imagenes as $i => $img)
-                <img src="{{ $img['src'] }}" alt="{{ $img['alt'] }}"
-                    class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-10' }}"
-                    data-carousel-item="{{ $i }}">
-            @endforeach
-
-
-
-            <button type="button" id="prevBtn"
-                class="absolute left-0 top-0 h-full w-1/6 flex items-center justify-start bg-transparent hover:bg-white/0 rounded-none p-0 z-10">
-                <span class="bg-white/70 hover:bg-white rounded-full p-2 shadow ml-2">
-                    <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </span>
-            </button>
-            <button type="button" id="nextBtn"
-                class="absolute right-0 top-0 h-full w-1/6 flex items-center justify-end bg-transparent hover:bg-white/0 rounded-none p-0 z-10">
-                <span class="bg-white/70 hover:bg-white rounded-full p-2 shadow mr-2">
-                    <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                </span>
-            </button>
-            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            @if ($imagenes->count())
                 @foreach ($imagenes as $i => $img)
-                    <button type="button"
-                        class="w-4 h-4 rounded-full bg-black/70 backdrop-blur-sm transition {{ $i === 0 ? 'bg-white/50' : '' }}"
-                        data-carousel-dot="{{ $i }}"></button>
+                    <img src="{{ asset('storage/' . $img->ruta) }}" alt="Imagen carrusel {{ $i + 1 }}"
+                        class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-10' }}"
+                        data-carousel-item="{{ $i }}">
                 @endforeach
-            </div>
+                <button type="button" id="prevBtn"
+                    class="absolute left-0 top-0 h-full w-1/6 flex items-center justify-start bg-transparent hover:bg-white/0 rounded-none p-0 z-10">
+                    <span class="bg-white/70 hover:bg-white rounded-full p-2 shadow ml-2">
+                        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </span>
+                </button>
+                <button type="button" id="nextBtn"
+                    class="absolute right-0 top-0 h-full w-1/6 flex items-center justify-end bg-transparent hover:bg-white/0 rounded-none p-0 z-10">
+                    <span class="bg-white/70 hover:bg-white rounded-full p-2 shadow mr-2">
+                        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </span>
+                </button>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                    @foreach ($imagenes as $i => $img)
+                        <button type="button"
+                            class="w-4 h-4 rounded-full bg-black/70 backdrop-blur-sm transition {{ $i === 0 ? 'bg-white/50' : '' }}"
+                            data-carousel-dot="{{ $i }}"></button>
+                    @endforeach
+                </div>
+            @else
+                <div class="flex items-center justify-center h-full bg-gray-200">
+                    <span class="text-gray-500">No hay imágenes en el carrusel.</span>
+                </div>
+            @endif
         </div>
     </div>
     <main class="container px-6 mx-auto">

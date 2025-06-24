@@ -41,9 +41,9 @@
 
     <!-- Navegación tipo botones para administrador -->
     <nav class="bg-white shadow-md py-4 px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-        <a href="#"
+        <a href="{{ route('admin.carrusel.index') }}"
             class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">
-            <i class="fa-solid fa-map-marker-alt text-black"></i> Gestionar Lugares
+            <i class="fa-solid fa-map-marker-alt text-black"></i> Gestionar Carrusel
         </a>
         <a href="{{ route('admin.proveedores.index') }}"
             class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">

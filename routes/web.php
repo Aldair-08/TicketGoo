@@ -14,7 +14,7 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DocumentoController;
 /*use App\Models\Compra;*/
 
-Route::get('/', [EventoController::class, 'explorar'])->name('welcome');
+Route::get('/', [App\Http\Controllers\CarruselController::class, 'welcome'])->name('welcome');
 Route::get('/usuario/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
 Route::get('/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('pagina.principallog');
 
@@ -129,6 +129,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/admin/eventos/{id}/gestionar', [App\Http\Controllers\EventoController::class, 'gestionar'])->name('admin.eventos.gestionar');
         Route::post('/admin/eventos/{id}/publicar', [App\Http\Controllers\EventoController::class, 'publicar'])->name('admin.eventos.publicar');
 
+        //Carrusel
+        Route::resource('carrusel', App\Http\Controllers\CarruselController::class)->names('admin.carrusel');
         //CRUD de promociones :)
         Route::resource('promociones', PromocionController::class)->names('admin.promociones');
     });
