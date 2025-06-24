@@ -1,11 +1,11 @@
-@extends('layouts.autenticado')
+@extends('layouts.procesopago')
 
 @section('contenido')
     <div class="flex flex-col md:flex-row gap-6 items-start">
         <div class="w-full md:w-2/3">
             {{-- Selección de tickets --}}
-            <div id="seccion-tickets">
-                <div class="mb-4">
+            <section id="seccion-tickets">
+                <div class="mb-4 bg-white rounded-lg shadow p-6 px-6 w-full md:w-full mx-4">
                     {{-- Barra de pasos --}}
                     <div class="flex items-center gap-2 mb-4" id="barra-pasos-tickets">
                         <span id="paso-tickets" class="font-bold text-blue-700">TICKETS</span>
@@ -21,7 +21,7 @@
                                 'costa21' => 'costa21.png',
                                 'estadionacional' => 'estadionacional.png',
                                 'teatrocanout' => 'teatro.png',
-                                'parqueexpo' => 'parqueexpo.png',
+                                'anfiteatrop.exposición' => 'parqueexpo.png',
                                 default => 'mapa_default.png',
                             };
                         @endphp
@@ -47,7 +47,7 @@
                             @endforeach
                         </div>
                         <button id="agregarBtn"
-                            class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded-full shadow mt-4">Agregar</button>
+                            class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-8 rounded-full shadow mt-4">Agregar</button>
                     </div>
                     {{-- Resumen --}}
                     <div class="mt-6">
@@ -56,12 +56,13 @@
                         <div class="font-bold text-right mt-2">TOTAL: S/. <span id="total-monto">0.00</span></div>
                     </div>
                     <button id="continuarBtn"
-                        class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded-full shadow mt-4">CONTINUAR</button>
-                </div>
-            </div>
+                        class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow mt-4">CONTINUAR</button>
+                    </>
+            </section>
+
             {{-- Sección de Datos de Compra --}}
-            <div id="seccion-datos-compra" class="hidden">
-                <div class="mb-4">
+            <section id="seccion-datos-compra" class="hidden">
+                <div class="mb-4 bg-white rounded-lg shadow p-6 px-6 w-full md:w-full mx-4">
                     {{-- Barra de pasos --}}
                     <div class="flex items-center gap-2 mb-4" id="barra-pasos-datos">
                         <span id="paso-tickets-datos" class="text-gray-400">TICKETS</span>
@@ -76,18 +77,19 @@
                             <input type="radio" name="entrega" value="correo" class="mr-2" checked>
                             <span>S/ 0 &nbsp; ONLINE CORREO</span>
                         </label>
-                        <label class="flex items-center border rounded p-3 cursor-pointer border-yellow-400 bg-yellow-50">
+                        <label class="flex items-center border rounded p-3 cursor-pointer bg-yellow-50">
                             <input type="radio" name="entrega" value="tienda" class="mr-2">
                             <span>
                                 S/ 10 &nbsp; RETIRO DE TIENDA
-                                <div class="text-xs text-yellow-700 font-semibold">Retiro disponible solo en Lima - Santa
+                                <div class="text-xs text-yellow-700 font-semibold">Retiro disponible solo en Lima -
+                                    Santa
                                     Anita -
                                     Mall Aventuras.
                                 </div>
                             </span>
                         </label>
                     </div>
-                    <div class="mt-4 text-xs text-gray-700 bg-yellow-50 border-1  p-3 rounded">
+                    <div class="mt-4 text-xs text-gray-700 border bg-yellow-50 border-1  p-3 rounded">
                         <ul class="list-disc pl-5">
                             <li>La tarifa de S/10.00 incluye la impresión de todas las entradas de esta compra.</li>
                             <li>La entrada solo podrá ser canjeada si se presenta la siguiente documentación: </li>
@@ -97,38 +99,39 @@
                             <li>En caso de retiro por un autorizado, presentar carta poder y copia de documento.</li>
                         </ul>
                     </div>
+
+                    {{-- Resumen de compra --}}
+                    <div class="mt-6">
+                        <h3 class="font-bold mb-2">RESUMEN</h3>
+                        <ul id="resumen-lista-final" class="mb-2"></ul>
+                        <div class="font-bold text-right mt-2">TOTAL: S/. <span id="total-monto-final">0.00</span></div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="font-bold mb-2">Selecciona tu método de pago</h3>
+                        <label class="flex items-center mb-2">
+                            <input type="radio" name="metodo_pago" value="nibiz" class="mr-2" checked>
+                            Tarjeta de crédito/débito (NIBIZ)
+                            <img src="{{ asset('images/nibiz.png') }}" alt="NIBIZ" class="h-5 ml-2">
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="metodo_pago" value="yape" class="mr-2">
+                            Pago con Yape
+                            <img src="{{ asset('images/yape.png') }}" alt="Yape" class="h-5 ml-2">
+                        </label>
+                    </div>
+                    <button id="continuarconfirmadoBtn"
+                        class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow mt-4">
+                        CONTINUAR
+                    </button>
                 </div>
-                {{-- Resumen de compra --}}
-                <div class="mt-6">
-                    <h3 class="font-bold mb-2">RESUMEN</h3>
-                    <ul id="resumen-lista-final" class="mb-2"></ul>
-                    <div class="font-bold text-right mt-2">TOTAL: S/. <span id="total-monto-final">0.00</span></div>
-                </div>
-                <div class="mt-6">
-                    <h3 class="font-bold mb-2">Selecciona tu método de pago</h3>
-                    <label class="flex items-center mb-2">
-                        <input type="radio" name="metodo_pago" value="nibiz" class="mr-2" checked>
-                        Tarjeta de crédito/débito (NIBIZ)
-                        <img src="{{ asset('images/nibiz.png') }}" alt="NIBIZ" class="h-5 ml-2">
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="metodo_pago" value="yape" class="mr-2">
-                        Pago con Yape
-                        <img src="{{ asset('images/yape.png') }}" alt="Yape" class="h-5 ml-2">
-                    </label>
-                </div>
-                <button id="continuarconfirmadoBtn"
-                    class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded-full shadow mt-4">
-                    CONTINUAR
-                </button>
                 {{-- Modal NIBIZ --}}
                 <div id="modal-nibiz"
                     class="absolute left-0 top-0 w-full h-full flex items-center justify-center z-50 hidden">
-                    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                    <div class="bg-white rounded-lg bg-gray-100 shadow-lg p-4 w-full max-w-md relative">
                         <button onclick="cerrarModalNibiz()"
                             class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
                         <div class="flex flex-col items-center">
-                            <img src="{{ asset('images/logo-ticketgo.png') }}" alt="TicketGO" class="w-40 mb-4">
+                            <img src="{{ asset('images/logo.png') }}" alt="TicketGO" class="w-32 h-20 mb-4">
                             <form class="w-full space-y-3">
                                 <input type="text" id="nibiz-numero-tarjeta" placeholder="Número de Tarjeta"
                                     class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400">
@@ -147,7 +150,7 @@
                                 <input type="email" id="nibiz-email" placeholder="Email"
                                     class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400">
                                 <button type="button" id="pagarNibizBtn"
-                                    class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded-full shadow w-full mt-2">
+                                    class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow w-full mt-2">
                                     Pagar s/ <span id="monto-nibiz"></span>
                                 </button>
                             </form>
@@ -166,7 +169,7 @@
                         <button onclick="cerrarModalYape()"
                             class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
                         <div class="flex flex-col items-center">
-                            <img src="{{ asset('images/logo-ticketgo.png') }}" alt="TicketGO" class="w-40 mb-4">
+                            <img src="{{ asset('images/logo.png') }}" alt="TicketGO" class="w-40 h-20 mb-4">
                             <form class="w-full space-y-3">
                                 <label class="block font-semibold">Ingresa tu celular Yape</label>
                                 <input type="text" id="yape-celular" placeholder=""
@@ -186,7 +189,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
             {{-- Sección de Confirmado --}}
             <div id="seccion-confirmado" class="hidden">
                 <div class="flex items-center gap-2 mb-4">
@@ -201,7 +204,7 @@
                         <button onclick="cerrarModal()"
                             class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
                         <div class="flex flex-col items-center">
-                            <img src="{{ asset('images/logo-ticketgo.png') }}" alt="TicketGO" class="w-40 mb-4">
+                            <img src="{{ asset('images/logo.png') }}" alt="TicketGO" class="w-32 h-20 mb-4">
                             <h2 class="font-bold text-lg mb-2">Boleto de compra</h2>
                             {{-- Detalles del evento --}}
                             <div class="w-full mb-4 border-b pb-2" id="detalles-evento-confirmado"></div>
@@ -219,7 +222,7 @@
                                 <div id="datos-comprador-confirmado"></div>
                             </div>
                             <a href="#"
-                                class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded-full shadow mt-2 block text-center"
+                                class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow mt-2 block text-center"
                                 target="_blank" id="descargarBoletoBtn">
                                 Descargar Boleto
                             </a>
@@ -228,8 +231,9 @@
                 </div>
             </div>
         </div>
+
         {{-- Columna derecha: Info del evento SIEMPRE visible --}}
-        <div class="bg-white rounded-lg shadow p-6 w-full md:w-1/3">
+        <div class="bg-white rounded-lg shadow p-6 w-full md:w-1/3 mx-4">
             <img src="{{ asset('storage/' . $evento->imagen) }}" alt="{{ $evento->nombre }}"
                 class="w-full rounded mb-4">
             <div class="text-xs text-gray-500 mb-1">{{ strtoupper($evento->categoria) }} / PRESENCIAL</div>
@@ -418,15 +422,13 @@
                 const email = document.getElementById('nibiz-email').value;
                 datosCompradorHtml = `
             <div class="mb-2"><span class="font-semibold">Nombre:</span> ${nombre} ${apellido}</div>
-            <div class="mb-2"><span class="font-semibold">Email:</span> ${email}</div>
-        `;
+            <div class="mb-2"><span class="font-semibold">Email:</span> ${email}</div>`;
             } else if (metodo === 'yape') {
                 metodoHtml =
                     `<img src="{{ asset('images/yape.png') }}" alt="Yape" class="h-6 inline"> <span class="font-semibold">Yape</span>`;
                 const celular = document.getElementById('yape-celular').value;
                 datosCompradorHtml = `
-            <div class="mb-2"><span class="font-semibold">Celular Yape:</span> ${celular}</div>
-        `;
+            <div class="mb-2"><span class="font-semibold">Celular Yape:</span> ${celular}</div>`;
             }
             document.getElementById('metodo-pago-confirmado').innerHTML = metodoHtml;
             document.getElementById('datos-comprador-confirmado').innerHTML = datosCompradorHtml;
@@ -438,8 +440,8 @@
         <div class="mb-2"><span class="font-semibold">Correo:</span> {{ Auth::user()->email }}</div>
         <div class="mb-2"><span class="font-semibold">Evento:</span> {{ strtoupper($evento->nombre) }}</div>
         <div class="mb-2"><span class="font-semibold">Fecha:</span> {{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}</div>
-        <div class="mb-2"><span class="font-semibold">Ubicación:</span> {{ $evento->ubicacion }}</div>
-    `;
+        <div class="mb-2"><span class="font-semibold">Ubicación:</span> {{ $evento->ubicacion }}</div>`;
+
         }
 
         // Cerrar modal NIBIZ
@@ -458,72 +460,77 @@
         }
 
         document.getElementById('descargarBoletoBtn').addEventListener('click', function(e) {
-    e.preventDefault();
+            e.preventDefault();
 
-    // Prepara los datos para el PDF
-    const nombreCuenta = "{{ Auth::user()->name }}";
-    const dni = "{{ Auth::user()->dni }}";
-    const correo = "{{ Auth::user()->email }}";
-    const evento = "{{ strtoupper($evento->nombre) }}";
-    const fecha = "{{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}";
-    const ubicacion = "{{ $evento->ubicacion }}";
-    const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
-    let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
-    let datosPago = '';
-    if (metodo === 'nibiz') {
-        const nombre = document.getElementById('nibiz-nombre').value;
-        const apellido = document.getElementById('nibiz-apellido').value;
-        const email = document.getElementById('nibiz-email').value;
-        datosPago = `<div><span class="label">Nombre:</span> ${nombre} ${apellido}</div>
+            // Prepara los datos para el PDF
+            const nombreCuenta = "{{ Auth::user()->name }}";
+            const dni = "{{ Auth::user()->dni }}";
+            const correo = "{{ Auth::user()->email }}";
+            const evento = "{{ strtoupper($evento->nombre) }}";
+            const fecha = "{{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}";
+            const ubicacion = "{{ $evento->ubicacion }}";
+            const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
+            let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
+            let datosPago = '';
+            if (metodo === 'nibiz') {
+                const nombre = document.getElementById('nibiz-nombre').value;
+                const apellido = document.getElementById('nibiz-apellido').value;
+                const email = document.getElementById('nibiz-email').value;
+                datosPago = `<div><span class="label">Nombre:</span> ${nombre} ${apellido}</div>
                      <div><span class="label">Email:</span> ${email}</div>`;
-    } else {
-        const celular = document.getElementById('yape-celular').value;
-        datosPago = `<div><span class="label">Celular Yape:</span> ${celular}</div>`;
-    }
+            } else {
+                const celular = document.getElementById('yape-celular').value;
+                datosPago = `<div><span class="label">Celular Yape:</span> ${celular}</div>`;
+            }
 
-    // Entradas
-    let entradas = [];
-    document.querySelectorAll('#resumen-lista-confirmado li').forEach(function(item) {
-        const texto = item.querySelector('span:first-child').textContent;
-        const cantidad = parseInt(texto);
-        const tipo = texto.replace(/^\d+\s/, '');
-        const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace('S/.', '').trim());
-        entradas.push({ cantidad, tipo, subtotal });
-    });
+            // Entradas
+            let entradas = [];
+            document.querySelectorAll('#resumen-lista-confirmado li').forEach(function(item) {
+                const texto = item.querySelector('span:first-child').textContent;
+                const cantidad = parseInt(texto);
+                const tipo = texto.replace(/^\d+\s/, '');
+                const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace(
+                    'S/.', '').trim());
+                entradas.push({
+                    cantidad,
+                    tipo,
+                    subtotal
+                });
+            });
 
-    const total = parseFloat(document.getElementById('total-monto-confirmado').textContent);
+            const total = parseFloat(document.getElementById('total-monto-confirmado').textContent);
 
-    // Enviar datos al backend y descargar PDF
-    fetch('/comprar/boleta', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            nombre_cuenta: nombreCuenta,
-            dni: dni,
-            correo: correo,
-            evento: evento,
-            fecha: fecha,
-            ubicacion: ubicacion,
-            entradas: entradas,
-            total: total,
-            metodo_pago: metodoPago,
-            datos_pago: datosPago
-        })
-    })
-    .then(response => response.blob())
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'boleta_ticketgo.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-    });
-});
+            // Enviar datos al backend y descargar PDF
+            fetch('/comprar/boleta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        nombre_cuenta: nombreCuenta,
+                        dni: dni,
+                        correo: correo,
+                        evento: evento,
+                        fecha: fecha,
+                        ubicacion: ubicacion,
+                        entradas: entradas,
+                        total: total,
+                        metodo_pago: metodoPago,
+                        datos_pago: datosPago
+                    })
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'boleta_ticketgo.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                });
+        });
     </script>
 @endsection

@@ -45,6 +45,10 @@
             class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">
             <i class="fa-solid fa-map-marker-alt text-black"></i> Gestionar Lugares
         </a>
+        <a href="{{ route('admin.proveedores.index') }}"
+            class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">
+            <i class="fa-solid fa-handshake text-black"></i> Gestionar Proveedores
+        </a>
         <a href="{{ route('admin.eventos.create') }}"
             class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">
             <i class="fa-solid fa-calendar-plus text-black"></i> Registrar Evento
@@ -53,15 +57,12 @@
             class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">
             <i class="fa-solid fa-tags text-black"></i> Registrar Promociones
         </a>
-        <a href="{{ route('admin.proveedores.index') }}"
-            class="w-full max-w-[220px] mx-auto bg-yellow-500 text-black px-4 py-2 rounded flex items-center gap-2 justify-center hover:bg-yellow-600 transition">
-            <i class="fa-solid fa-handshake text-black"></i> Gestionar Proveedores
-        </a>
+
     </nav>
 
 
     <!-- Contenido principal -->
-    <main class="p-6">
+    <main class="p-6 min-h-[calc(100vh-320px)]">
         @yield('contenido')
     </main>
 
@@ -90,7 +91,6 @@
                 <ul class="space-y-1 text-sm">
                     <li><a href="{{ route('comprar') }}" class="hover:underline">Cómo comprar entradas</a></li>
                     <li><a href="{{ route('funciona') }}" class="hover:underline">Cómo funcionan los e-tickets</a></li>
-                    <li><a href="{{ route('derechos') }}" class="hover:underline">Derechos Arco</a></li>
                 </ul>
             </div>
         </div>

@@ -64,16 +64,28 @@
             <div class="mb-8">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Adjuntar imágenes</label>
                 <div
+                    class="border-2 border-yellow-400 border-dashed rounded-lg p-8 flex flex-col items-center justify-center bg-yellow-50 mb-4">
+                    <svg class="w-12 h-12 text-yellow-400 mb-2" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 16v-8m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"></path>
+                    </svg>
+                    <p class="text-gray-500 text-sm mb-2">Imagen principal: PNG, JPG, GIF</p>
+                    <input type="file" name="imagen" accept=".png,.jpg,.jpeg,.gif" class="mt-2" required />
+                </div>
+                <div
                     class="border-2 border-yellow-400 border-dashed rounded-lg p-8 flex flex-col items-center justify-center bg-yellow-50">
                     <svg class="w-12 h-12 text-yellow-400 mb-2" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 16v-8m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"></path>
                     </svg>
-                    <p class="text-gray-500 text-sm mb-2">Abrir o pegue su archivo: PNG, JPG, GIF</p>
-                    <input type="file" name="imagen" accept=".png,.jpg,.jpeg,.gif" class="mt-2" />
+                    <p class="text-gray-500 text-sm mb-2">Imagen de fondo del evento: PNG, JPG, GIF</p>
+                    <input type="file" name="imagen_fondo" accept=".png,.jpg,.jpeg,.gif" class="mt-2" required />
                 </div>
             </div>
+
+
             <!-- Botones -->
             <div class="flex justify-center gap-8">
                 <button type="submit"

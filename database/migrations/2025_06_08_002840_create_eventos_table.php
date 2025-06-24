@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('categoria'); // Concierto, Teatro, etc.
             $table->text('descripcion')->nullable();
-            $table->date('fecha');
+            $table->dateTime('fecha');
             $table->string('ubicacion');
             $table->string('imagen')->nullable(); // ruta imagen
+            $table->string('imagen_fondo')->nullable(); // ruta imagen de fondo
 
             $table->unsignedBigInteger('id_proveedor');
 

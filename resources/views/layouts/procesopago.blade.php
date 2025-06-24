@@ -13,26 +13,13 @@
 
 <body class="bg-white text-gray-900 min-h-screen flex flex-col">
 
-    <header class="flex items-center justify-between px-4 py border-b border-gray-300">
+    <header
+        class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 py border-b border-gray-300 bg-white bg-opacity-95 backdrop-blur">
         <div class="flex-1 flex justify-start">
             <a href="/usuario/principallog">
-                <img src="{{ asset('images/logo.png') }}" alt="TicketGO Logo" class="w-32 h-22">
+                <img src="{{ asset('images/logo.png') }}" alt="TicketGO Logo" class="w-32 h-20">
             </a>
         </div>
-
-        <!-- Buscador centrado -->
-        <div class="flex-1 flex justify-center">
-            <form aria-label="Buscar eventos"
-                class="flex items-center border border-gray-300 rounded-full px-3 py-1 max-w-lg w-full" role="search"
-                onsubmit="event.preventDefault();">
-                <input class="flex-grow text-xs placeholder-gray-400 focus:outline-none" id="searchInput"
-                    placeholder="Hacer búsqueda aquí" type="search" />
-                <button class="text-gray-500 ml-2" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
-
         <!-- Menú horizontal simple -->
         <nav class="flex-1 flex justify-end space-x-8 text-sm md:text-base font-medium text-black">
             <a href="{{ route('usuario.compras') }}" class="hover:text-blue-600">Mis Compras</a>
@@ -45,10 +32,9 @@
         </form>
     </header>
 
-
-    @yield('contenido')
-
-
+    <div class="pt-32"> {{-- Ajusta el padding-top según la altura de tu header --}}
+        @yield('contenido')
+    </div>
 
     <footer class="bg-black text-white py-4 min-h-[100px] mt-auto">
         <div class="container px-6 pl-32 flex flex-col md:flex-row items-start justify-between gap-8">
@@ -72,24 +58,12 @@
                 <h4 class="text-lg font-bold mb-3">¿NECESITAS AYUDA?</h4>
                 <ul class="space-y-1 text-sm">
                     <li><a href="{{ route('comprar') }}" class="hover:underline">Cómo comprar entradas</a></li>
-                    <li><a href="{{ route('funciona') }}" class="hover:underline">Cómo funcionan los e-tickets</a></li>
+                    <li><a href="{{ route('funciona') }}" class="hover:underline">Cómo funcionan los e-tickets</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </footer>
-
-    <script>
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            const eventos = document.querySelectorAll('article');
-
-            eventos.forEach(evento => {
-                const text = evento.textContent.toLowerCase();
-                evento.style.display = text.includes(query) ? 'block' : 'none';
-            });
-        });
-    </script>
 
 </body>
 

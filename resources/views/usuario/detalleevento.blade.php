@@ -1,7 +1,13 @@
-@extends('layouts.autenticado')
+@extends('layouts.procesopago')
 
 @section('contenido')
-    <div class="min-h-screen flex flex-col items-center justify-center bg-black">
+    <div class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+        <!-- Imagen de fondo cubriendo toda la pantalla -->
+        <div class="fixed inset-0 -z-10">
+            <img src="{{ asset('storage/' . $evento->imagen_fondo) }}" alt="Fondo {{ $evento->nombre }}"
+                class="w-full h-full object-cover object-center" />
+            <div class="absolute inset-0 bg-black/60"></div>
+        </div>
         <div class="w-full max-w-2xl mx-auto relative">
             <img src="{{ asset('storage/' . $evento->imagen) }}" alt="{{ $evento->nombre }}"
                 class="w-full h-96 object-cover rounded-lg shadow-lg mb-4">
@@ -9,9 +15,10 @@
             <div class="absolute top-10 left-0 w-full text-center px-4">
                 <h1 class="text-5xl font-extrabold text-white drop-shadow-lg">{{ strtoupper($evento->nombre) }}</h1>
                 <h3 class="text-xl text-white mt-2">{{ $evento->categoria }}</h3>
-                <h4 class="text-lg text-yellow-300 mt-2">
+                <h4 class="text-lg text-white mt-2">
                     {{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}</h4>
                 <h5 class="text-white mt-2">{{ $evento->ubicacion }}</h5>
+                <h5 class="text-white mt-2">{{ $evento->descripcion }}</h5>
             </div>
         </div>
         <div class="w-full max-w-2xl bg-white bg-opacity-90 rounded-lg shadow-lg mt-8 p-6">
@@ -34,7 +41,7 @@
             </table>
             <div class="flex justify-center">
                 <a href="{{ route('comprar.index', $evento->id_evento) }}"
-                    class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded-full shadow">Comprar</a>
+                    class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow">Comprar</a>
             </div>
         </div>
     </div>

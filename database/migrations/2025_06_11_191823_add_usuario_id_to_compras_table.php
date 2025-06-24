@@ -10,17 +10,18 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('compras', function (Blueprint $table) {
-        $table->unsignedBigInteger('usuario_id')->after('id');
-    });
-}
+    {
+        Schema::table('compras', function (Blueprint $table) {
+            if (!Schema::hasColumn('compras', 'usuario_id')) {
+                $table->bigInteger('usuario_id')->unsigned()->after('id');
+            }
+        });
+    }
 
-public function down()
-{
-    Schema::table('compras', function (Blueprint $table) {
-        $table->dropColumn('usuario_id');
-    });
-}
-
+    public function down()
+    {
+        Schema::table('compras', function (Blueprint $table) {
+            $table->dropColumn('usuario_id');
+        });
+    }
 };

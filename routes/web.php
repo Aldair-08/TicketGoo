@@ -16,7 +16,7 @@ use App\Http\Controllers\DocumentoController;
 
 Route::get('/', [EventoController::class, 'explorar'])->name('welcome');
 Route::get('/usuario/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
-
+Route::get('/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('pagina.principallog');
 
 // Ruta principal y alias
 /*Route::view('/', 'welcome')->name('welcome');

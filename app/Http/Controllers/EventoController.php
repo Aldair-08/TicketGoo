@@ -35,6 +35,11 @@ class EventoController extends Controller
             $evento->imagen = $path;
         }
 
+        if ($request->hasFile('imagen_fondo')) {
+            $pathFondo = $request->file('imagen_fondo')->store('eventos', 'public');
+            $evento->imagen_fondo = $pathFondo;
+        }
+
         $evento->save();
         return redirect()->route('admin.eventos.index')->with('success', 'Evento registrado');
     }
