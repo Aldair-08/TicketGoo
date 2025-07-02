@@ -60,6 +60,17 @@
                     </select>
                 </div>
             </div>
+            <!-- Proveedor -->
+            <div class="mb-6">
+                <label for="id_proveedor" class="block text-sm font-semibold text-gray-700 mb-1">Proveedor</label>
+                <select id="id_proveedor" name="id_proveedor" required
+                    class="w-full border border-yellow-500 rounded px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-yellow-500">
+                    <option value="" disabled selected>Seleccionar proveedor</option>
+                    @foreach ($proveedores as $proveedor)
+                        <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
             <!-- Adjuntar imágenes -->
             <div class="mb-8">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Adjuntar imágenes</label>

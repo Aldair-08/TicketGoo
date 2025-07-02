@@ -11,13 +11,14 @@ class EventoController extends Controller
 {
     public function index()
     {
-        $eventos = \App\Models\Evento::all(); // Muestra todos los eventos, no solo los publicados
+        $eventos = \App\Models\Evento::all();
         return view('admin.eventos.index', compact('eventos'));
     }
 
     public function create()
     {
-        return view('admin.AgregarEvento');
+        $proveedores = \App\Models\Proveedor::where('estado', 'ACTIVO')->get();
+        return view('admin.AgregarEvento', compact('proveedores'));
     }
 
     public function store(Request $request)
@@ -28,7 +29,7 @@ class EventoController extends Controller
         $evento->descripcion = $request->descripcion;
         $evento->fecha = $request->fecha;
         $evento->ubicacion = $request->ubicacion;
-        $evento->id_proveedor = 1; // Asignar proveedor por defecto, se puede cambiar según la lógica de tu aplicación
+        $evento->id_proveedor = $request->id_proveedor;
 
         // si hay imagen
         if ($request->hasFile('imagen')) {

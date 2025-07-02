@@ -58,8 +58,6 @@
                     wire:model.defer="pais">
                     <option value="" disabled>Selecciona tu país</option>
                     <option value="PE">Perú</option>
-                    <option value="CL">Chile</option>
-                    <option value="AR">Argentina</option>
                 </select>
                 @error('pais')
                     <span class="text-red-600 text-sm">{{ $message }}</span>

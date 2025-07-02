@@ -23,6 +23,7 @@
                         <th class="px-4 py-2 font-semibold text-white">Nombre de Evento</th>
                         <th class="px-4 py-2 font-semibold text-white">Categoría</th>
                         <th class="px-4 py-2 font-semibold text-white">Fecha</th>
+                        <th class="px-4 py-2 font-semibold text-white">Proveedor</th>
                         <th class="px-4 py-2 font-semibold text-white">Acciones</th>
                     </tr>
                 </thead>
@@ -32,6 +33,7 @@
                             <td class="px-4 py-2">{{ $evento->nombre }}</td>
                             <td class="px-4 py-2">{{ $evento->categoria }}</td>
                             <td class="px-4 py-2">{{ \Carbon\Carbon::parse($evento->fecha)->format('d-m-Y') }}</td>
+                            <td class="px-4 py-2">{{ $evento->proveedor->nombre ?? 'No asignado' }}</td>
                             <td class="px-4 py-2 space-x-2">
                                 <a href="{{ route('admin.eventos.gestionar', $evento->id_evento) }}"
                                     class="px-4 py-1 text-sm font-semibold text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
