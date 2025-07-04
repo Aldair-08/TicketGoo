@@ -22,8 +22,8 @@
                     class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
                     required>
                     <option value="">Selecciona un tipo</option>
-                    <option value="Porcentaje" {{ old('tipo') == 'Porcentaje' ? 'selected' : '' }}>Porcentaje</option>
-                    <option value="Monto" {{ old('tipo') == 'Monto' ? 'selected' : '' }}>Monto</option>
+                    <option value="PORCENTAJE" {{ old('tipo') == 'PORCENTAJE' ? 'selected' : '' }}>Porcentaje</option>
+                    <option value="MONTO" {{ old('tipo') == 'MONTO' ? 'selected' : '' }}>Monto</option>
                     <option value="2x1" {{ old('tipo') == '2x1' ? 'selected' : '' }}>2x1</option>
                 </select>
             </div>

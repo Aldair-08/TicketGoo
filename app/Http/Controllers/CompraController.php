@@ -255,7 +255,10 @@ class CompraController extends Controller
     public function index($id_evento)
     {
         $evento = \App\Models\Evento::with('entradas')->where('id_evento', $id_evento)->firstOrFail();
-        return view('usuario.comprar', compact('evento'));
+        $promociones = \App\Models\Promocion::where('id_evento', $evento->id_evento)
+            ->where('estado', 'ACTIVO')
+            ->get();
+        return view('usuario.comprar', compact('evento', 'promociones'));
     }
 
     public function procesarCompra(Request $request)

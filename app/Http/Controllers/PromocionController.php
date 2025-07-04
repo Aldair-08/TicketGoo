@@ -41,7 +41,7 @@ class PromocionController extends Controller
         ]);
 
         $data = $request->all();
-        $data['estado'] = $request->has('estado') ? 'ACTIVO' : 'INACTIVO';
+        $data['estado'] = $request->input('estado', 'ACTIVO');
 
         Promocion::create($data);
 
@@ -84,7 +84,7 @@ class PromocionController extends Controller
         $promocion = Promocion::findOrFail($id);
 
         $data = $request->all();
-        $data['estado'] = $request->has('estado') ? 'ACTIVO' : 'INACTIVO';
+        $data['estado'] = $request->input('estado', 'ACTIVO');
 
         $promocion->update($data);
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_promocion');
             $table->string('nombre');
             $table->enum('tipo', ['PORCENTAJE', 'MONTO', '2x1']);
-            $table->decimal('valor', 8, 2)->nullable(); // según tipo
+            $table->decimal('valor', 8, 2)->default(0.00);
             $table->unsignedBigInteger('id_evento');
             $table->date('fecha_inicio');
             $table->date('fecha_fin');

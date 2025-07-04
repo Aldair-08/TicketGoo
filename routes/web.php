@@ -12,17 +12,10 @@ use App\Http\Controllers\PromocionController;
 use App\Http\Controllers\CompraDetalleController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DocumentoController;
-/*use App\Models\Compra;*/
 
 Route::get('/', [App\Http\Controllers\CarruselController::class, 'welcome'])->name('welcome');
 Route::get('/usuario/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('usuario.principallog');
 Route::get('/principallog', [App\Http\Controllers\EventoController::class, 'usuarioEventos'])->name('pagina.principallog');
-
-// Ruta principal y alias
-/*Route::view('/', 'welcome')->name('welcome');
-Route::get('/inicio', function () {
-    return view('welcome');
-})->name('inicio');*/
 
 // Dashboard protegido
 Route::view('dashboard', 'dashboard')
@@ -37,9 +30,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-// Página principal
-/*Route::view('/', 'welcome')->name('welcome');*/
-
 // Página de "Sobre Nosotros"
 Route::view('/nosotros', 'nosotros')->name('nosotros');
 Route::view('/terminos-condiciones', 'terminos')->name('terminos');
@@ -49,18 +39,6 @@ Route::view('/derechos-arco', 'derechos')->name('derechos');
 Route::view('/como-comprar-entradas', 'comprar')->name('comprar');
 Route::view('/como-funcionan-etickets', 'funciona')->name('funciona');
 
-// Rutas de usuario específicas
-//Route::view('/principallog', 'usuario.principallog')->name('pagina.principallog');
-/*Route::get('/duki', function () {
-    return view('usuario.duki');
-})->name('evento.duki');
-Route::get('/compraduki', function () {
-    return view('usuario.compraduki');
-})->name('usuario.compraduki');
-Route::get('/identificadorduki', function () {
-    return view('usuario.identificadorduki');
-})->name('usuario.identificadorduki');*/
-
 Route::get('/etickets', function () {
     return view('usuario.etickets');
 })->name('usuario.etickets');
@@ -68,26 +46,6 @@ Route::get('/etickets', function () {
 Route::get('/compras', function () {
     return view('usuario.compras');
 })->name('usuario.compras');
-
-//ruta nueva para no mostrar al usuario si no se a iniciado session
-/*Route::get('/dukipreview', function () {
-    return view('usuario.dukipreview');
-})->name('usuario.dukipreview');
-
-Route::get('/vaucherduki', function () {
-    // Obtenemos la última compra con estado 'pendiente' o cualquier estado que necesites
-    $compra = Compra::with('detalles', 'usuario')->latest('fecha')->first();
-
-    if (!$compra) {
-        abort(404, 'Compra no encontrada');
-    }
-
-    return view('usuario.vaucherduki', [
-        'compra' => $compra,
-        'detalles' => $compra->detalles,
-    ]);
-})->name('usuario.vaucherduki');*/
-
 
 // Rutas para compra, pago y documentos
 Route::post('/guardar-detalle', [CompraDetalleController::class, 'guardarDetalle'])->name('guardar.detalle');

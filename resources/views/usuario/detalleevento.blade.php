@@ -39,10 +39,13 @@
                     @endforeach
                 </tbody>
             </table>
-            <div class="flex justify-center">
+            <div class="flex justify-center gap-4">
+                <a href="{{ url()->previous() }}"
+                    class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-8 rounded-full shadow">Volver</a>
                 <a href="{{ route('comprar.index', $evento->id_evento) }}"
-                    class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow">Comprar</a>
+                    class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow">Continuar</a>
             </div>
+
         </div>
     </div>
 @endsection
