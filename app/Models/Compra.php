@@ -9,11 +9,12 @@ class Compra extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['usuario_id', 'evento_id', 'total', 'estado', 'formato_entrega'];
+    protected $fillable = ['usuario_id', 'evento_id', 'total', 'estado', 'formato_entrega', 'fecha_pago'];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'fecha_pago' => 'datetime',
     ];
 
     protected static function boot()

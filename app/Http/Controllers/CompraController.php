@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VoucherCompraMail;
+use App\Mail\BoletaCompraMail;
 
 class CompraController extends Controller
 {
@@ -98,10 +99,90 @@ class CompraController extends Controller
             return response()->json(['success' => false, 'message' => 'Compra inválida o ya pagada.'], 400);
         }
 
+        // Actualizar estado de la compra
         $compra->estado = 'pagado';
+        $compra->fecha_pago = now();
         $compra->save();
 
-        return response()->json(['success' => true, 'message' => '¡Pago realizado con éxito!']);
+        // Preparar datos del pago
+        $metodoPago = $request->metodo_pago ?? 'No especificado';
+        $datosPago = $request->datos_pago ?? [];
+        
+        // Formatear detalles del pago según el método
+        $detallesPago = '';
+        if ($metodoPago === 'NIBIZ' && !empty($datosPago)) {
+            $detallesPago = '<div><span class="label">Nombre:</span> ' . ($datosPago['nombre'] ?? '') . ' ' . ($datosPago['apellido'] ?? '') . '</div>';
+            $detallesPago .= '<div><span class="label">Email:</span> ' . ($datosPago['email'] ?? '') . '</div>';
+        } elseif ($metodoPago === 'YAPE' && !empty($datosPago)) {
+            $detallesPago = '<div><span class="label">Celular Yape:</span> ' . ($datosPago['celular'] ?? '') . '</div>';
+        }
+
+        $datosPagoCompletos = [
+            'metodo' => $metodoPago,
+            'detalles' => $detallesPago,
+        ];
+
+        // Enviar boleta automáticamente
+        $boletaEnviada = $this->enviarBoletaAutomatica($compra->id, $datosPagoCompletos);
+
+        $mensaje = '¡Pago realizado con éxito!';
+        if ($boletaEnviada) {
+            $mensaje .= ' Se ha enviado la boleta a tu correo electrónico.';
+        } else {
+            $mensaje .= ' La boleta se enviará en breve.';
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => $mensaje,
+            'boleta_enviada' => $boletaEnviada
+        ]);
+    }
+
+    /**
+     * Procesar pago completo con datos del método de pago
+     */
+    public function pagarCompleto(Request $request)
+    {
+        $request->validate([
+            'compra_id' => 'required|exists:compras,id',
+            'metodo_pago' => 'required|string',
+            'datos_pago' => 'nullable|array',
+        ]);
+
+        $compra = Compra::find($request->compra_id);
+
+        if (!$compra || $compra->estado != 'pendiente') {
+            return response()->json(['success' => false, 'message' => 'Compra inválida o ya pagada.'], 400);
+        }
+
+        // Actualizar estado de la compra
+        $compra->estado = 'pagado';
+        $compra->fecha_pago = now();
+        $compra->save();
+
+        // Preparar datos del pago
+        $datosPago = [
+            'metodo' => $request->metodo_pago,
+            'detalles' => $request->datos_pago ? json_encode($request->datos_pago) : null,
+        ];
+
+        // Enviar boleta automáticamente
+        $boletaEnviada = $this->enviarBoletaAutomatica($compra->id, $datosPago);
+
+        $mensaje = '¡Pago realizado exitosamente!';
+        if ($boletaEnviada) {
+            $mensaje .= ' Se ha enviado la boleta a tu correo electrónico.';
+        } else {
+            $mensaje .= ' La boleta se enviará en breve.';
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => $mensaje,
+            'boleta_enviada' => $boletaEnviada,
+            'compra_id' => $compra->id
+        ]);
     }
 
 
@@ -396,6 +477,39 @@ class CompraController extends Controller
             ->get();
 
         return view('usuario.etickets', compact('compras'));
+    }
+
+    /**
+     * Enviar boleta de compra automáticamente después del pago
+     */
+    public function enviarBoletaAutomatica($compra_id, $datosPago = null)
+    {
+        try {
+            // Buscar la compra con todas sus relaciones
+            $compra = Compra::with(['detalles', 'evento', 'usuario'])->findOrFail($compra_id);
+
+            // Verificar que la compra esté pagada
+            if ($compra->estado !== 'pagado') {
+                \Log::warning('Intento de enviar boleta para compra no pagada: ' . $compra_id);
+                return false;
+            }
+
+            // Verificar que el usuario tenga email
+            if (!$compra->usuario->email) {
+                \Log::error('Usuario sin email para enviar boleta: ' . $compra->usuario_id);
+                return false;
+            }
+
+            // Enviar la boleta
+            Mail::to($compra->usuario->email)->send(new BoletaCompraMail($compra, $datosPago));
+
+            \Log::info('Boleta enviada exitosamente para compra: ' . $compra_id);
+            return true;
+
+        } catch (\Exception $e) {
+            \Log::error('Error enviando boleta automática: ' . $e->getMessage());
+            return false;
+        }
     }
 
     /**

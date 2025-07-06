@@ -54,6 +54,7 @@ Route::post('/guardar-compra', [CompraController::class, 'guardarCompra'])->name
 
 Route::get('/pago/confirmar', [CompraController::class, 'vistaPago'])->name('pago.confirmar');
 Route::post('/pago', [CompraController::class, 'pagar'])->name('compra.pagar');
+Route::post('/pago-completo', [CompraController::class, 'pagarCompleto'])->name('compra.pagarCompleto');
 Route::get('/pagoduki', [CompraController::class, 'mostrarPagoFinal'])->name('pagoduki');
 Route::delete('/detalle/{id}/eliminar', [CompraController::class, 'eliminarDetalle'])->name('detalle.eliminar');
 Route::get('/identificador-duki/{compra_id}', [CompraController::class, 'mostrarIdentificador'])->name('usuario.identificadorduki');

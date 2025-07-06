@@ -152,13 +152,15 @@
     // Botón pagar NIBIZ
     document.getElementById('pagarNibizBtn').addEventListener('click', function() {
         document.getElementById('modal-nibiz').classList.add('hidden');
-        procesarCompra(mostrarConfirmacion);
+        mostrarAnimacionCarga();
+        procesarCompraConAnimacion(mostrarConfirmacion);
     });
 
     // Botón pagar YAPE
     document.getElementById('pagarYapeBtn').addEventListener('click', function() {
         document.getElementById('modal-yape').classList.add('hidden');
-        procesarCompra(mostrarConfirmacion);
+        mostrarAnimacionCarga();
+        procesarCompraConAnimacion(mostrarConfirmacion);
     });
 
     // ========================================
@@ -220,6 +222,27 @@
 
     // Función para marcar la compra como pagada
     function marcarComoPagado(compraId, callback) {
+        // Obtener método de pago seleccionado
+        const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
+        let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
+        let datosPago = {};
+        
+        if (metodo === 'nibiz') {
+            const nombre = document.getElementById('nibiz-nombre').value;
+            const apellido = document.getElementById('nibiz-apellido').value;
+            const email = document.getElementById('nibiz-email').value;
+            datosPago = {
+                nombre: nombre,
+                apellido: apellido,
+                email: email
+            };
+        } else {
+            const celular = document.getElementById('yape-celular').value;
+            datosPago = {
+                celular: celular
+            };
+        }
+
         fetch('/pago', {
                 method: 'POST',
                 headers: {
@@ -227,7 +250,9 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    compra_id: compraId
+                    compra_id: compraId,
+                    metodo_pago: metodoPago,
+                    datos_pago: datosPago
                 })
             })
             .then(response => response.json())
@@ -238,7 +263,215 @@
                     alert('Error al confirmar el pago');
                 }
             })
-            .catch(() => alert('Error al conectar con el servidor'));
+            .catch(() => {
+                ocultarAnimacionCarga();
+                alert('Error al conectar con el servidor');
+            });
+    }
+
+    // ========================================
+    // ANIMACIÓN DE CARGA
+    // ========================================
+
+    // Mostrar animación de carga
+    function mostrarAnimacionCarga() {
+        document.getElementById('modal-carga').classList.remove('hidden');
+        iniciarProgreso();
+    }
+
+    // Ocultar animación de carga
+    function ocultarAnimacionCarga() {
+        document.getElementById('modal-carga').classList.add('hidden');
+        resetearProgreso();
+        
+        // Limpiar mensaje de éxito si existe
+        const mensajeExito = document.getElementById('mensaje-exito');
+        if (mensajeExito) {
+            mensajeExito.remove();
+        }
+        
+        // Resetear barra de progreso
+        const barra = document.getElementById('barra-progreso');
+        barra.classList.remove('bg-green-600');
+    }
+
+    // Iniciar progreso de la animación
+    function iniciarProgreso() {
+        const barra = document.getElementById('barra-progreso');
+        const mensajes = ['mensaje-1', 'mensaje-2', 'mensaje-3', 'mensaje-4'];
+        let paso = 0;
+
+        // Función para actualizar progreso
+        function actualizarProgreso() {
+            if (paso < 4) {
+                // Actualizar barra de progreso
+                const porcentaje = ((paso + 1) / 4) * 100;
+                barra.style.width = porcentaje + '%';
+
+                // Actualizar mensajes
+                mensajes.forEach((mensajeId, index) => {
+                    const mensaje = document.getElementById(mensajeId);
+                    if (index <= paso) {
+                        mensaje.classList.remove('opacity-50');
+                        mensaje.classList.add('opacity-100');
+                        
+                        if (index < paso) {
+                            // Completado
+                            mensaje.innerHTML = mensaje.innerHTML.replace('⏳', '✓');
+                            mensaje.classList.add('completado');
+                            mensaje.classList.remove('activo');
+                        } else if (index === paso) {
+                            // Activo
+                            mensaje.classList.add('activo');
+                            mensaje.classList.remove('completado');
+                        }
+                    }
+                });
+
+                paso++;
+                
+                // Continuar con el siguiente paso después de un delay
+                setTimeout(actualizarProgreso, 800);
+            }
+        }
+
+        // Iniciar progreso
+        setTimeout(actualizarProgreso, 500);
+    }
+
+    // Resetear progreso
+    function resetearProgreso() {
+        const barra = document.getElementById('barra-progreso');
+        const mensajes = ['mensaje-1', 'mensaje-2', 'mensaje-3', 'mensaje-4'];
+        
+        barra.style.width = '0%';
+        
+        mensajes.forEach((mensajeId, index) => {
+            const mensaje = document.getElementById(mensajeId);
+            mensaje.classList.remove('opacity-100', 'completado', 'activo');
+            mensaje.classList.add('opacity-50');
+            
+            // Resetear iconos
+            if (index === 0) {
+                mensaje.innerHTML = '✓ Validando datos de pago';
+            } else {
+                mensaje.innerHTML = mensaje.innerHTML.replace('✓', '⏳');
+            }
+        });
+    }
+
+    // Mostrar mensaje de éxito
+    function mostrarMensajeExito() {
+        const mensajesProgreso = document.getElementById('mensajes-progreso');
+        const mensajeExito = document.createElement('div');
+        mensajeExito.id = 'mensaje-exito';
+        mensajeExito.className = 'progreso-mensaje completado animate-fade-in';
+        mensajeExito.innerHTML = '🎉 ¡Pago exitoso! Tu boleta ha sido enviada a tu correo';
+        mensajeExito.style.fontWeight = 'bold';
+        mensajeExito.style.fontSize = '14px';
+        mensajeExito.style.marginTop = '10px';
+        
+        mensajesProgreso.appendChild(mensajeExito);
+        
+        // Completar la barra de progreso
+        const barra = document.getElementById('barra-progreso');
+        barra.style.width = '100%';
+        barra.classList.add('bg-green-600');
+    }
+
+    // Procesar compra con animación
+    function procesarCompraConAnimacion(callback) {
+        // Construir objeto de entradas seleccionadas
+        let entradas = {};
+        document.querySelectorAll('.entrada-item').forEach(function(item) {
+            const id = item.getAttribute('data-id');
+            const cantidad = parseInt(item.querySelector('.cantidad-input').value) || 0;
+            if (cantidad > 0) {
+                entradas[id] = cantidad;
+            }
+        });
+
+        fetch('/comprar/procesar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    entradas
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Marcar la compra como pagada con animación
+                    marcarComoPagadoConAnimacion(data.compra_id, callback);
+                } else {
+                    ocultarAnimacionCarga();
+                    alert(data.message || 'Error al procesar la compra');
+                }
+            })
+            .catch(() => {
+                ocultarAnimacionCarga();
+                alert('Error al conectar con el servidor');
+            });
+    }
+
+    // Marcar como pagado con animación
+    function marcarComoPagadoConAnimacion(compraId, callback) {
+        // Obtener método de pago seleccionado
+        const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
+        let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
+        let datosPago = {};
+        
+        if (metodo === 'nibiz') {
+            const nombre = document.getElementById('nibiz-nombre').value;
+            const apellido = document.getElementById('nibiz-apellido').value;
+            const email = document.getElementById('nibiz-email').value;
+            datosPago = {
+                nombre: nombre,
+                apellido: apellido,
+                email: email
+            };
+        } else {
+            const celular = document.getElementById('yape-celular').value;
+            datosPago = {
+                celular: celular
+            };
+        }
+
+        fetch('/pago', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    compra_id: compraId,
+                    metodo_pago: metodoPago,
+                    datos_pago: datosPago
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    mostrarMensajeExito();
+                    
+                    // Completar animación antes de mostrar confirmación
+                    setTimeout(() => {
+                        ocultarAnimacionCarga();
+                        callback();
+                    }, 2000);
+                } else {
+                    ocultarAnimacionCarga();
+                    alert('Error al confirmar el pago');
+                }
+            })
+            .catch(() => {
+                ocultarAnimacionCarga();
+                alert('Error al conectar con el servidor');
+            });
     }
 
     // ========================================

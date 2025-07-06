@@ -1,4 +1,60 @@
 {{-- Sección de Datos de Compra --}}
+<style>
+    /* Animaciones personalizadas */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .animate-pulse-slow {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .animate-slide-in {
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    /* Estilos para el modal de carga */
+    .modal-carga-backdrop {
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+    
+    .progreso-mensaje {
+        transition: all 0.3s ease;
+    }
+    
+    .progreso-mensaje.completado {
+        color: #059669;
+        font-weight: 600;
+    }
+    
+    .progreso-mensaje.activo {
+        color: #1d4ed8;
+        font-weight: 600;
+    }
+</style>
+
 <section id="seccion-datos-compra" class="hidden">
     <div class="mb-4 bg-white rounded-lg shadow p-6 px-6 w-full md:w-full mx-4">
         {{-- Barra de pasos --}}
@@ -133,6 +189,35 @@
                 </form>
                 <div class="flex flex-col items-center mt-4">
                     <img src="{{ asset('images/yape.png') }}" alt="Yape" class="h-8">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal de Carga --}}
+    <div id="modal-carga" class="absolute left-0 top-0 w-full h-full flex items-center justify-center z-50 hidden bg-black bg-opacity-50 modal-carga-backdrop">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative animate-slide-in">
+            <div class="flex flex-col items-center">
+                <img src="{{ asset('images/logo.png') }}" alt="TicketGO" class="w-32 h-20 mb-6 animate-pulse-slow">
+                
+                {{-- Animación de carga --}}
+                <div class="flex flex-col items-center mb-6">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-700 mb-4"></div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 animate-pulse-slow">Procesando pago...</h3>
+                    <p class="text-sm text-gray-600 text-center">Estamos procesando tu pago y generando tu boleta</p>
+                </div>
+
+                {{-- Barra de progreso --}}
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                    <div id="barra-progreso" class="bg-gradient-to-r from-blue-600 to-blue-800 h-2 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+
+                {{-- Mensajes de progreso --}}
+                <div id="mensajes-progreso" class="text-sm text-gray-600 text-center space-y-2">
+                    <div id="mensaje-1" class="progreso-mensaje opacity-50">✓ Validando datos de pago</div>
+                    <div id="mensaje-2" class="progreso-mensaje opacity-50">⏳ Procesando transacción</div>
+                    <div id="mensaje-3" class="progreso-mensaje opacity-50">⏳ Generando boleta</div>
+                    <div id="mensaje-4" class="progreso-mensaje opacity-50">⏳ Enviando email</div>
                 </div>
             </div>
         </div>

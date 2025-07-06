@@ -1,4 +1,65 @@
 @extends('layouts.eticketslayout')
+
+<style>
+    /* Animaciones para los botones */
+    .btn-enviar {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-enviar:disabled {
+        transform: scale(0.98);
+    }
+    
+    .spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* Efecto de pulso para el botón durante el envío */
+    .btn-enviar.enviando {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.8;
+        }
+    }
+    
+    /* Estilos para los badges de tickets */
+    .ticket-badge {
+        transition: all 0.2s ease;
+    }
+    
+    .ticket-badge:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Estilos para la tabla */
+    .etickets-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .etickets-table th {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+    }
+</style>
+
 @section('etickets')
 
     <section class="bg-[#fff7e3] rounded-2xl shadow-md mb-12 overflow-hidden" role="region">
@@ -6,60 +67,90 @@
             ETICKETS
         </header>
         <div class="overflow-x-auto">
-            <table class="min-w-full border border-[#222]" role="table">
+            <table class="min-w-full border border-[#222] etickets-table" role="table">
                 <thead>
                     <tr class="bg-white text-left text-sm font-bold uppercase text-[#222] border-b border-[#222]">
                         <th scope="col" class="px-4 py-3">N° de Orden</th>
                         <th scope="col" class="px-4 py-3">Evento</th>
                         <th scope="col" class="px-4 py-3">Fecha</th>
                         <th scope="col" class="px-4 py-3">Recinto</th>
-                        <th scope="col" class="px-4 py-3">Tipo de Ticket</th>
+                        <th scope="col" class="px-4 py-3">Tickets</th>
+                        <th scope="col" class="px-4 py-3 text-center">Total</th>
                         <th scope="col" class="px-4 py-3 text-center">Enviar</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if ($compras->count() > 0)
                         @foreach ($compras as $compra)
-                            @foreach ($compra->detalles as $detalle)
-                                <tr class="bg-white text-sm font-semibold text-[#222] border-b border-gray-300">
-                                    <td class="px-4 py-3">TG-{{ $compra->id }}</td>
-                                    <td class="px-4 py-3">{{ $compra->evento->nombre ?? 'Evento no disponible' }}</td>
-                                    <td class="px-4 py-3">
-                                        @if ($compra->evento && $compra->evento->fecha)
-                                            {{ \Carbon\Carbon::parse($compra->evento->fecha)->format('d/m/Y H:i') }}
+                            <tr class="bg-white text-sm font-semibold text-[#222] border-b border-gray-300">
+                                <td class="px-4 py-3">TG-{{ $compra->id }}</td>
+                                <td class="px-4 py-3">{{ $compra->evento->nombre ?? 'Evento no disponible' }}</td>
+                                <td class="px-4 py-3">
+                                    @if ($compra->evento && $compra->evento->fecha)
+                                        {{ \Carbon\Carbon::parse($compra->evento->fecha)->format('d/m/Y H:i') }}
+                                    @else
+                                        Por definir
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">{{ $compra->evento->ubicacion ?? 'Por definir' }}</td>
+                                <td class="px-4 py-3">
+                                    @php
+                                        $tickets = [];
+                                        $totalTickets = 0;
+                                        foreach ($compra->detalles as $detalle) {
+                                            $tipo = strtoupper($detalle->tipo_ticket);
+                                            $cantidad = $detalle->cantidad;
+                                            $totalTickets += $cantidad;
+                                            if (isset($tickets[$tipo])) {
+                                                $tickets[$tipo] += $cantidad;
+                                            } else {
+                                                $tickets[$tipo] = $cantidad;
+                                            }
+                                        }
+                                    @endphp
+                                    <div class="space-y-1">
+                                        @if (count($tickets) === 1)
+                                            {{-- Si solo hay un tipo de ticket, mostrar de forma simple --}}
+                                            @foreach ($tickets as $tipo => $cantidad)
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium ticket-badge">
+                                                    {{ $cantidad }}x {{ $tipo }}
+                                                </span>
+                                            @endforeach
                                         @else
-                                            Por definir
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3">{{ $compra->evento->ubicacion ?? 'Por definir' }}</td>
-                                    <td class="px-4 py-3">{{ $detalle->cantidad }}x {{ strtoupper($detalle->tipo_ticket) }}
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <button onclick="enviarVoucher({{ $compra->id }})"
-                                            class="bg-[#334e86] hover:bg-[#283b66] text-white px-4 py-2 rounded-full font-semibold text-sm transition-colors duration-300"
-                                            id="btn-enviar-{{ $compra->id }}">
-                                            Enviar al correo
-                                        </button>
-                                        <div id="loading-{{ $compra->id }}" class="hidden">
-                                            <div class="inline-flex items-center px-4 py-2 text-sm">
-                                                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                                        stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                    </path>
-                                                </svg>
-                                                Enviando...
+                                            {{-- Si hay múltiples tipos, mostrar con badges --}}
+                                            @foreach ($tickets as $tipo => $cantidad)
+                                                <div class="flex items-center justify-between text-xs">
+                                                    <span class="font-medium">{{ $tipo }}:</span>
+                                                    <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded ticket-badge">{{ $cantidad }}</span>
+                                                </div>
+                                            @endforeach
+                                            <div class="border-t border-gray-200 pt-1 mt-1">
+                                                <span class="text-xs font-bold text-gray-600">Total: {{ $totalTickets }} tickets</span>
                                             </div>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="font-bold text-green-600">S/. {{ number_format($compra->total, 2) }}</span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button onclick="enviarVoucher({{ $compra->id }})"
+                                        class="bg-[#334e86] hover:bg-[#283b66] text-white px-4 py-2 rounded-full font-semibold text-sm transition-colors duration-300 flex items-center justify-center min-w-[120px] btn-enviar"
+                                        id="btn-enviar-{{ $compra->id }}">
+                                        <span id="btn-text-{{ $compra->id }}">Enviar al correo</span>
+                                        <div id="spinner-{{ $compra->id }}" class="hidden ml-2">
+                                            <svg class="spinner h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
                                         </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                                    </button>
+                                </td>
+                            </tr>
                         @endforeach
                     @else
                         <tr class="bg-white text-sm font-semibold text-[#222] border-b border-gray-300">
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -85,11 +176,14 @@
     <script>
         function enviarVoucher(compraId) {
             const btnEnviar = document.getElementById(`btn-enviar-${compraId}`);
-            const loading = document.getElementById(`loading-${compraId}`);
+            const btnText = document.getElementById(`btn-text-${compraId}`);
+            const spinner = document.getElementById(`spinner-${compraId}`);
 
-            // Mostrar loading
-            btnEnviar.classList.add('hidden');
-            loading.classList.remove('hidden');
+            // Deshabilitar botón y mostrar spinner
+            btnEnviar.disabled = true;
+            btnEnviar.classList.add('opacity-75', 'cursor-not-allowed', 'enviando');
+            btnText.textContent = 'Enviando...';
+            spinner.classList.remove('hidden');
 
             // Realizar la petición AJAX
             fetch(`/enviar-voucher/${compraId}`, {
@@ -101,27 +195,32 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Ocultar loading
-                    loading.classList.add('hidden');
+                    // Ocultar spinner
+                    spinner.classList.add('hidden');
 
                     if (data.success) {
                         // Mostrar mensaje de éxito
-                        btnEnviar.textContent = 'Enviado ✓';
-                        btnEnviar.classList.remove('bg-[#334e86]', 'hover:bg-[#283b66]');
+                        btnText.textContent = 'Enviado ✓';
+                        btnEnviar.classList.remove('bg-[#334e86]', 'hover:bg-[#283b66]', 'opacity-75', 'cursor-not-allowed', 'enviando');
                         btnEnviar.classList.add('bg-green-600', 'cursor-default');
 
                         // Mostrar notificación
                         mostrarNotificacion('Voucher enviado exitosamente a tu correo', 'success');
                     } else {
-                        // Mostrar mensaje de error
-                        btnEnviar.classList.remove('hidden');
+                        // Restaurar botón en caso de error
+                        btnEnviar.disabled = false;
+                        btnEnviar.classList.remove('opacity-75', 'cursor-not-allowed', 'enviando');
+                        btnText.textContent = 'Enviar al correo';
                         mostrarNotificacion(data.message || 'Error al enviar el voucher', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    loading.classList.add('hidden');
-                    btnEnviar.classList.remove('hidden');
+                    // Restaurar botón en caso de error
+                    spinner.classList.add('hidden');
+                    btnEnviar.disabled = false;
+                    btnEnviar.classList.remove('opacity-75', 'cursor-not-allowed', 'enviando');
+                    btnText.textContent = 'Enviar al correo';
                     mostrarNotificacion('Error al enviar el voucher. Intenta nuevamente.', 'error');
                 });
         }
