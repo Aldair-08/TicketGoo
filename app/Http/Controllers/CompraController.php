@@ -8,6 +8,8 @@ use App\Models\Compra;
 use App\Models\CompraDetalle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VoucherCompraMail;
 
 class CompraController extends Controller
 {
@@ -377,5 +379,73 @@ class CompraController extends Controller
         $totalFinal = $compra->total;
 
         return view('usuario.voucher_compra', compact('compra', 'resumen', 'totalFinal'));
+    }
+
+    /**
+     * Mostrar etickets del usuario
+     */
+    public function mostrarEtickets()
+    {
+        $usuarioId = Auth::id();
+        
+        // Obtener todas las compras pagadas del usuario con sus detalles y evento
+        $compras = Compra::with(['detalles', 'evento'])
+            ->where('usuario_id', $usuarioId)
+            ->where('estado', 'pagado')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('usuario.etickets', compact('compras'));
+    }
+
+    /**
+     * Enviar voucher de compra por email
+     */
+    public function enviarVoucherPorEmail($compra_id)
+    {
+        try {
+            // Buscar la compra con todas sus relaciones
+            $compra = Compra::with(['detalles', 'evento', 'usuario'])->findOrFail($compra_id);
+
+            // Verificar que el usuario accede solo a su propia compra
+            if ($compra->usuario_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'No tienes permiso para acceder a esta compra'
+                ], 403);
+            }
+
+            // Verificar que la compra esté pagada
+            if ($compra->estado !== 'pagado') {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Esta compra no ha sido pagada aún'
+                ], 400);
+            }
+
+            // Verificar que el usuario tenga email
+            if (!$compra->usuario->email) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'No se encontró un email válido para enviar el voucher'
+                ], 400);
+            }
+
+            // Enviar el email
+            Mail::to($compra->usuario->email)->send(new VoucherCompraMail($compra));
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Voucher enviado exitosamente a tu correo electrónico'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error enviando voucher por email: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error al enviar el voucher. Por favor, intenta nuevamente.'
+            ], 500);
+        }
     }
 }

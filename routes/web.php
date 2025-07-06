@@ -39,12 +39,11 @@ Route::view('/derechos-arco', 'derechos')->name('derechos');
 Route::view('/como-comprar-entradas', 'comprar')->name('comprar');
 Route::view('/como-funcionan-etickets', 'funciona')->name('funciona');
 
-Route::get('/etickets', function () {
-    return view('usuario.etickets');
-})->name('usuario.etickets');
+Route::get('/etickets', [CompraController::class, 'mostrarEtickets'])->middleware('auth')->name('usuario.etickets');
 
 Route::get('/compras', [CompraController::class, 'mostrarCompras'])->middleware('auth')->name('usuario.compras');
 Route::get('/voucher-compra/{compra_id}', [CompraController::class, 'mostrarVoucherCompra'])->middleware('auth')->name('usuario.Voucher');
+Route::post('/enviar-voucher/{compra_id}', [CompraController::class, 'enviarVoucherPorEmail'])->middleware('auth')->name('usuario.enviarVoucher');
 
 // Rutas para compra, pago y documentos
 Route::post('/guardar-detalle', [CompraDetalleController::class, 'guardarDetalle'])->name('guardar.detalle');
