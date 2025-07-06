@@ -23,8 +23,8 @@ class Login extends Component
 
     public bool $remember = false;
 
-    #[Validate('accepted')]
-    public bool $robot = false; //  validación 
+    #[Validate('required|string')]
+    public string $g_recaptcha_response = ''; // reCAPTCHA token 
 
     /**
      * Handle an incoming authentication request.
@@ -32,6 +32,9 @@ class Login extends Component
     public function login(): void
     {
         $this->validate();
+
+        // Verificar reCAPTCHA
+        $this->verifyRecaptcha();
 
         $this->ensureIsNotRateLimited();
 
@@ -76,5 +79,32 @@ class Login extends Component
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
+    }
+
+    /**
+     * Verify reCAPTCHA token
+     */
+    protected function verifyRecaptcha(): void
+    {
+        // Debug: Verificar si el token está presente
+        if (empty($this->g_recaptcha_response)) {
+            throw ValidationException::withMessages([
+                'g_recaptcha_response' => 'Por favor, completa el reCAPTCHA.',
+            ]);
+        }
+
+        $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => config('services.recaptcha.secret_key'),
+            'response' => $this->g_recaptcha_response,
+            'remoteip' => request()->ip(),
+        ]);
+
+        $result = $response->json();
+
+        if (!$result['success']) {
+            throw ValidationException::withMessages([
+                'g_recaptcha_response' => 'Verificación reCAPTCHA fallida. Por favor, intenta nuevamente.',
+            ]);
+        }
     }
 }

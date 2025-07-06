@@ -25,7 +25,7 @@ class Register extends Component
     public string $confirmar_contrasena = '';
     public bool $acepto_terminos = false;
     public bool $acepto_promociones = false;
-    public bool $no_robot = false;
+    public string $g_recaptcha_response = ''; // reCAPTCHA token
 
     /**
      * Maneja la petición de registro.
@@ -44,12 +44,12 @@ class Register extends Component
             'contrasena' => ['required', 'string', Rules\Password::defaults()],
             'confirmar_contrasena' => ['required', 'same:contrasena'],
             'acepto_terminos' => ['accepted'],
-            'no_robot' => ['accepted'],
+            'g_recaptcha_response' => ['required', 'string'],
         ], [
             // Mensajes personalizados (opcional)
             'cumple.before_or_equal' => 'Debes ser mayor de edad para poder registrarte.',
             'acepto_terminos.accepted' => 'Debes aceptar los términos y condiciones.',
-            'no_robot.accepted' => 'Por favor confirma que no eres un robot.',
+            'g_recaptcha_response.required' => 'Por favor, completa el reCAPTCHA.',
         ]);
 
         // La validación 'confirmed' en 'contrasena' asume que el campo de confirmación se llama 'contrasena_confirmation'.
@@ -59,6 +59,9 @@ class Register extends Component
         ], [
             'confirmar_contrasena.same' => 'La confirmación de la contraseña no coincide.',
         ]);
+
+        // Verificar reCAPTCHA
+        $this->verifyRecaptcha();
 
         // Hasheamos la contraseña
         $validated['password'] = Hash::make($validated['contrasena']);
@@ -81,5 +84,32 @@ class Register extends Component
 
         $this->redirect(route('pagina.principallog', absolute: false), navigate: true);
 
+    }
+
+    /**
+     * Verify reCAPTCHA token
+     */
+    protected function verifyRecaptcha(): void
+    {
+        // Debug: Verificar si el token está presente
+        if (empty($this->g_recaptcha_response)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'g_recaptcha_response' => 'Por favor, completa el reCAPTCHA.',
+            ]);
+        }
+
+        $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => config('services.recaptcha.secret_key'),
+            'response' => $this->g_recaptcha_response,
+            'remoteip' => request()->ip(),
+        ]);
+
+        $result = $response->json();
+
+        if (!$result['success']) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'g_recaptcha_response' => 'Verificación reCAPTCHA fallida. Por favor, intenta nuevamente.',
+            ]);
+        }
     }
 }

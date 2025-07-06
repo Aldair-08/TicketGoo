@@ -31,6 +31,34 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   @livewireScripts
+  
+  <!-- reCAPTCHA Script -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  
+  <style>
+    /* Estilos para reCAPTCHA */
+    .recaptcha-wrapper {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      background-color: #f9fafb;
+    }
+    
+    .recaptcha-wrapper.border-red-500 {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+    }
+    
+    .g-recaptcha {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .recaptcha-error {
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+  </style>
 
     <footer class="bg-black text-white py-4 min-h-[100px]">
         <div class="container px-6 flex flex-col md:flex-row items-start gap-80 ">

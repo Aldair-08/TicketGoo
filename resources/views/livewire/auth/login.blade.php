@@ -38,12 +38,11 @@
                 @error('password') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
             </div>
 
-            <!-- No soy un robot -->
-            <div class="flex items-center space-x-3 bg-gray-300 rounded px-4 py-2 w-max">
-                <input class="w-5 h-5" id="robot" type="checkbox" wire:model="robot" required />
-                <label class="text-xs font-bold select-none" for="robot">No soy un robot</label>
-                <img src="{{ asset('images/recapcha.png') }}" class="h-6 w-auto object-contain rounded shadow" />
-                @error('robot') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            <!-- reCAPTCHA -->
+            <div class="flex flex-col space-y-2">
+                <label class="text-gray-600 text-sm font-normal">Verificación de seguridad</label>
+                <x-recaptcha name="g_recaptcha_response" wireModel="g_recaptcha_response" />
+                @error('g_recaptcha_response') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
             </div>
 
             <button type="submit"

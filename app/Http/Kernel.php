@@ -57,5 +57,6 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'adminonly' => \App\Http\Middleware\AdminMiddleware::class,
+        'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
     ];
 }
