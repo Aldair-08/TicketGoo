@@ -9,13 +9,26 @@ class Compra extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['usuario_id', 'fecha', 'total', 'estado', 'formato_entrega'];
-
-    public $timestamps = false;
+    protected $fillable = ['usuario_id', 'evento_id', 'total', 'estado', 'formato_entrega'];
 
     protected $casts = [
-        'fecha' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($compra) {
+            $compra->created_at = now()->setTimezone('America/Lima');
+            $compra->updated_at = now()->setTimezone('America/Lima');
+        });
+        
+        static::updating(function ($compra) {
+            $compra->updated_at = now()->setTimezone('America/Lima');
+        });
+    }
 
     // Relación con CompraDetalle
     public function detalles()
@@ -26,5 +39,16 @@ class Compra extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    public function evento()
+    {
+        return $this->belongsTo(Evento::class, 'evento_id', 'id_evento');
+    }
+
+    // Método para obtener la fecha de compra formateada
+    public function getFechaCompraFormateadaAttribute()
+    {
+        return $this->created_at->format('d/m/Y H:i');
     }
 }

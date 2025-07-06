@@ -36,10 +36,10 @@ class CompraController extends Controller
 
         $compra = Compra::create([
             'usuario_id' => Auth::id(),
+            'evento_id' => session('evento_id'),
             'formato_entrega' => $data['formato_entrega'],
             'total' => $total,
             'estado' => 'pendiente',
-            'fecha' => now(), // ✅ Guarda la fecha para mostrar en el voucher
         ]);
 
         foreach ($tickets as $tipo => $ticket) {
@@ -55,7 +55,7 @@ class CompraController extends Controller
         }
 
         // Limpia la sesión para evitar confusión
-        session()->forget(['tickets', 'total']);
+        session()->forget(['tickets', 'total', 'evento_id']);
 
         return redirect()->route('pagoduki')->with('success', 'Compra registrada correctamente');
     }
@@ -93,13 +93,13 @@ class CompraController extends Controller
         $compra = Compra::find($request->compra_id);
 
         if (!$compra || $compra->estado != 'pendiente') {
-            return redirect()->back()->with('error', 'Compra inválida o ya pagada.');
+            return response()->json(['success' => false, 'message' => 'Compra inválida o ya pagada.'], 400);
         }
 
         $compra->estado = 'pagado';
         $compra->save();
 
-        return redirect()->route('pago.exito')->with('mensaje', '¡Pago realizado con éxito!');
+        return response()->json(['success' => true, 'message' => '¡Pago realizado con éxito!']);
     }
 
 
@@ -183,12 +183,11 @@ class CompraController extends Controller
     public function confirmarCompra(Request $request)
     {
         // Paso 1: Crear la compra
-        $compra = new Compra();
-        $compra->usuario_id = Auth::id(); // o $request->usuario_id si no estás autenticando
-        $compra->fecha = now();
-        $compra->total = $request->total;
-        $compra->estado = 'Confirmada';
-        $compra->save();
+        $compra = Compra::create([
+            'usuario_id' => Auth::id(),
+            'total' => $request->total,
+            'estado' => 'Confirmada',
+        ]);
 
         // Paso 2: Agregar los detalles de los tickets
         foreach ($request->entradas as $entrada) {
@@ -265,17 +264,62 @@ class CompraController extends Controller
     {
         DB::beginTransaction();
         try {
+            $eventoId = null;
+            $total = 0;
+            $tickets = [];
+            
             foreach ($request->entradas as $entradaId => $cantidad) {
                 $entrada = \App\Models\Entrada::find($entradaId);
                 if (!$entrada || $entrada->stock < $cantidad) {
                     throw new \Exception('Stock insuficiente para una de las entradas.');
                 }
+                
+                // Obtener el evento_id de la primera entrada
+                if ($eventoId === null) {
+                    $eventoId = $entrada->evento_id;
+                }
+                
+                // Calcular total y preparar tickets
+                $subtotal = $cantidad * $entrada->precio;
+                $total += $subtotal;
+                
+                $tickets[$entrada->tipo] = [
+                    'cantidad' => $cantidad,
+                    'precio' => $entrada->precio,
+                    'subtotal' => $subtotal,
+                ];
+                
                 $entrada->stock -= $cantidad;
                 $entrada->save();
             }
-            // Aquí puedes registrar la compra en otra tabla si lo necesitas
+            
+            // Guardar el evento_id y tickets en la sesión
+            if ($eventoId) {
+                session(['evento_id' => $eventoId, 'tickets' => $tickets, 'total' => $total]);
+            }
+            
+            // Crear la compra
+            $compra = Compra::create([
+                'usuario_id' => Auth::id(),
+                'evento_id' => $eventoId,
+                'total' => $total,
+                'estado' => 'pendiente',
+                'formato_entrega' => 'eticket',
+            ]);
+            
+            // Crear los detalles de la compra
+            foreach ($tickets as $tipo => $ticket) {
+                CompraDetalle::create([
+                    'compra_id' => $compra->id,
+                    'tipo_ticket' => strtoupper($tipo),
+                    'cantidad' => $ticket['cantidad'],
+                    'precio_unitario' => $ticket['precio'],
+                    'subtotal' => $ticket['subtotal'],
+                ]);
+            }
+            
             DB::commit();
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'compra_id' => $compra->id]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -292,5 +336,46 @@ class CompraController extends Controller
 
         // Descarga el archivo
         return $pdf->download('boleta_ticketgo.pdf');
+    }
+
+    public function mostrarCompras()
+    {
+        $usuarioId = Auth::id();
+        
+        // Obtener todas las compras del usuario con sus detalles y evento
+        $compras = Compra::with(['detalles', 'evento'])
+            ->where('usuario_id', $usuarioId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('usuario.compras', compact('compras'));
+    }
+
+    public function mostrarVoucherCompra($compra_id)
+    {
+        $compra = Compra::with(['detalles', 'evento', 'usuario'])->findOrFail($compra_id);
+
+        // Asegurar que el usuario accede solo a su propia compra
+        if ($compra->usuario_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para ver esta compra');
+        }
+
+        // Verificar que la compra esté pagada
+        if ($compra->estado !== 'pagado') {
+            abort(403, 'Esta compra no ha sido pagada');
+        }
+
+        // Preparar resumen de tickets
+        $resumen = $compra->detalles->map(function ($detalle) {
+            return [
+                'descripcion' => $detalle->cantidad . ' TICKET ' . strtoupper($detalle->tipo_ticket),
+                'precio' => $detalle->precio_unitario,
+                'total' => $detalle->cantidad * $detalle->precio_unitario,
+            ];
+        });
+
+        $totalFinal = $compra->total;
+
+        return view('usuario.voucher_compra', compact('compra', 'resumen', 'totalFinal'));
     }
 }

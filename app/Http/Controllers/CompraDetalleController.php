@@ -71,10 +71,10 @@ class CompraDetalleController extends Controller
         // Crear compra
         $compra = Compra::create([
             'usuario_id' => Auth::id() ?? 1, // Asume ID 1 si no hay login
-            'fecha' => now(),
+            'evento_id' => session('evento_id'),
             'total' => $total,
             'estado' => 'pendiente',
-            'metodo_entrega' => $formato,
+            'formato_entrega' => $formato,
         ]);
 
         foreach ($tickets as $tipo => $ticket) {
@@ -89,7 +89,7 @@ class CompraDetalleController extends Controller
         }
 
         // Limpiar sesión
-        session()->forget(['tickets', 'total']);
+        session()->forget(['tickets', 'total', 'evento_id']);
 
         return redirect()->route('welcome')->with('success', 'Compra y método de entrega registrados.');
     } 

@@ -16,6 +16,7 @@ class CompraDetalle extends Model
         'tipo_ticket',
         'cantidad',
         'precio_unitario',
+        'subtotal',
     ];
 
     // Relación inversa con Compra

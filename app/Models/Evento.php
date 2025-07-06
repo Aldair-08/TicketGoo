@@ -26,4 +26,10 @@ class Evento extends Model
     {
         return $this->hasMany(\App\Models\Entrada::class, 'evento_id', 'id_evento');
     }
+
+    // Método para obtener la fecha del evento formateada
+    public function getFechaEventoFormateadaAttribute()
+    {
+        return \Carbon\Carbon::parse($this->fecha)->format('d/m/Y H:i');
+    }
 }

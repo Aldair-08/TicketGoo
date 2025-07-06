@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
-        $this->app->singleton(RegisteredUserResponseContract::class, RegisteredUserResponse::class);
+        $this->app->singleton(RegisterResponseContract::class, RegisteredUserResponse::class);
     }
 
     public function boot(): void

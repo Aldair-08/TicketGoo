@@ -209,9 +209,33 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    callback();
+                    // Marcar la compra como pagada
+                    marcarComoPagado(data.compra_id, callback);
                 } else {
                     alert(data.message || 'Error al procesar la compra');
+                }
+            })
+            .catch(() => alert('Error al conectar con el servidor'));
+    }
+
+    // Función para marcar la compra como pagada
+    function marcarComoPagado(compraId, callback) {
+        fetch('/pago', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    compra_id: compraId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    callback();
+                } else {
+                    alert('Error al confirmar el pago');
                 }
             })
             .catch(() => alert('Error al conectar con el servidor'));
@@ -237,6 +261,9 @@
         
         // Mostrar detalles del evento
         mostrarDetallesEvento();
+        
+        // Mostrar fecha de pago
+        mostrarFechaPago();
     }
 
     // Mostrar datos de pago según método seleccionado
@@ -274,6 +301,21 @@
             <div class="mb-2"><span class="font-semibold">Ubicación:</span> {{ $evento->ubicacion }}</div>`;
     }
 
+    // Mostrar fecha de pago en la confirmación
+    function mostrarFechaPago() {
+        const ahora = new Date();
+        const opciones = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            timeZone: 'America/Lima'
+        };
+        const fechaPago = ahora.toLocaleDateString('es-ES', opciones);
+        document.getElementById('fecha-pago-confirmado').textContent = fechaPago;
+    }
+
     // ========================================
     // DESCARGAR BOLETA PDF
     // ========================================
@@ -288,6 +330,18 @@
         const evento = "{{ strtoupper($evento->nombre) }}";
         const fecha = "{{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}";
         const ubicacion = "{{ $evento->ubicacion }}";
+        
+        // Obtener fecha de pago actual
+        const ahora = new Date();
+        const opciones = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            timeZone: 'America/Lima'
+        };
+        const fechaPago = ahora.toLocaleDateString('es-ES', opciones);
         const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
         let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
         let datosPago = '';
@@ -336,7 +390,8 @@
                     entradas: entradas,
                     total: total,
                     metodo_pago: metodoPago,
-                    datos_pago: datosPago
+                    datos_pago: datosPago,
+                    fecha_pago: fechaPago
                 })
             })
             .then(response => response.blob())

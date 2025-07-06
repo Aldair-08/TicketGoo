@@ -32,6 +32,9 @@
                     <h3 class="font-semibold mb-1">Método de pago</h3>
                     <div id="metodo-pago-confirmado" class="flex items-center gap-2 mb-2"></div>
                     <div id="datos-comprador-confirmado"></div>
+                    <div class="mt-2 text-sm text-gray-600">
+                        <span class="font-semibold">Fecha de pago:</span> <span id="fecha-pago-confirmado"></span>
+                    </div>
                 </div>
                 
                 <a href="#"

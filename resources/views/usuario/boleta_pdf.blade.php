@@ -33,8 +33,9 @@
         <div><span class="label">DNI:</span> {{ $dni }}</div>
         <div><span class="label">Correo:</span> {{ $correo }}</div>
         <div><span class="label">Evento:</span> {{ $evento }}</div>
-        <div><span class="label">Fecha:</span> {{ $fecha }}</div>
+        <div><span class="label">Fecha del evento:</span> {{ $fecha }}</div>
         <div><span class="label">Ubicación:</span> {{ $ubicacion }}</div>
+        <div><span class="label">Fecha de pago:</span> {{ $fecha_pago ?? 'No especificada' }}</div>
     </div>
     <div class="seccion">
         <div class="label">Entradas compradas:</div>
