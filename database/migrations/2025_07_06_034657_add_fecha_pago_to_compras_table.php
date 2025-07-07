@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('compras', function (Blueprint $table) {
-            //
+            $table->dateTime('fecha_pago')->nullable()->after('formato_entrega');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('compras', function (Blueprint $table) {
-            //
+            $table->dropColumn('fecha_pago');
         });
     }
 };
