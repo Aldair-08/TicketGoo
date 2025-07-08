@@ -63,10 +63,26 @@
                 </article>
             @endforeach
         </section>
-        <div id="successModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50">
-            <div class="bg-white p-6 rounded shadow-lg text-center">
-                <h2 class="text-lg font-bold">Proximamente 😀 </h2>
+        <div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center hidden z-50">
+            <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full border-4 border-blue-100">
+                <div class="mb-4 flex justify-center">
+                    <svg class="w-14 h-14 text-blue-500 animate-bounce" fill="none" stroke="currentColor"
+                        stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3-1.343 3-3 3-3-1.343-3-3zm0 0c0-1.657-1.343-3-3-3s-3 1.343-3 3 1.343 3 3 3 3-1.343 3-3zm0 8v-2m0 0c-4.418 0-8-1.79-8-4V7a2 2 0 012-2h16a2 2 0 012 2v6c0 2.21-3.582 4-8 4z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-blue-700 mb-2">¡Únete y vive la emoción!</h2>
+                <p class="text-gray-700 mb-6">Inicia sesión o regístrate para no perderte ningún evento.</p>
+                <div class="flex justify-center gap-4">
+                    <a href="{{ route('login') }}"
+                        class="bg-gradient-to-r from-blue-700 to-blue-700 text-white px-6 py-2 rounded-full font-bold shadow hover:from-blue-500 hover:to-blue-500 transition">Iniciar
+                        sesión</a>
+                    <a href="{{ route('register') }}"
+                        class="bg-gradient-to-r from-yellow-500 to-yellow-500 text-black px-6 py-2 rounded-full font-bold shadow hover:from-yellow-400 hover:to-yellow-400 transition">Regístrate</a>
+                </div>
             </div>
+        </div>
     </main>
     <script>
         // Carrusel simple con Tailwind y JS

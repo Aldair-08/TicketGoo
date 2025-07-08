@@ -23,8 +23,6 @@
                     class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
                     required>
                     <option value="">Selecciona un tipo</option>
-                    <option value="Porcentaje" {{ old('tipo', $promocion->tipo) == 'Porcentaje' ? 'selected' : '' }}>
-                        Porcentaje</option>
                     <option value="Monto" {{ old('tipo', $promocion->tipo) == 'Monto' ? 'selected' : '' }}>Monto</option>
                     <option value="2x1" {{ old('tipo', $promocion->tipo) == '2x1' ? 'selected' : '' }}>2x1</option>
                 </select>
@@ -98,23 +96,30 @@
                 const valorInput = document.getElementById('valor');
 
                 function ajustarValidacion() {
-                    const tipo = tipoInput.value.toLowerCase();
+                    const tipo = tipoInput.value;
 
-                    if (tipo.includes('porcentaje')) {
+                    if (tipo === 'Monto') {
                         valorInput.type = 'number';
                         valorInput.min = 0;
-                        valorInput.max = 100;
-                        valorInput.placeholder = 'Ingrese un valor entre 0 y 100';
-                    } else if (tipo.includes('monto')) {
-                        valorInput.type = 'number';
-                        valorInput.min = 0;
+                        valorInput.step = '0.01';
                         valorInput.removeAttribute('max');
-                        valorInput.placeholder = 'Ingrese el monto del descuento';
+                        valorInput.placeholder = 'Ingrese el monto de las entradas';
+                        valorInput.disabled = false;
+                    } else if (tipo === '2x1') {
+                        valorInput.type = 'number';
+                        valorInput.min = 0;
+                        valorInput.step = '0.01';
+                        valorInput.placeholder = 'Ingrese el monto del 2x1';
+                        valorInput.removeAttribute('max');
+                        valorInput.disabled = false;
                     } else {
                         valorInput.type = 'text';
-                        valorInput.placeholder = 'Este tipo no requiere un valor numérico';
+                        valorInput.placeholder = 'Seleccione primero el tipo de promoción';
                         valorInput.removeAttribute('min');
                         valorInput.removeAttribute('max');
+                        valorInput.removeAttribute('step');
+                        valorInput.disabled = true;
+                        valorInput.value = '';
                     }
                 }
 

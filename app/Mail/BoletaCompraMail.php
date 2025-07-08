@@ -18,11 +18,12 @@ class BoletaCompraMail extends Mailable
 
     public $compra;
     public $datosPago;
+    public $datosExtras;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Compra $compra, $datosPago = null)
+    public function __construct(Compra $compra, $datosPago = null, $datosExtras = null)
     {
         $this->compra = $compra;
         
@@ -32,6 +33,7 @@ class BoletaCompraMail extends Mailable
         } else {
             $this->datosPago = $datosPago;
         }
+        $this->datosExtras = $datosExtras;
     }
 
     /**
@@ -49,15 +51,19 @@ class BoletaCompraMail extends Mailable
      */
     public function content(): Content
     {
+        $with = [
+            'compra' => $this->compra,
+            'usuario' => $this->compra->usuario,
+            'evento' => $this->compra->evento,
+            'detalles' => $this->compra->detalles,
+            'datosPago' => $this->datosPago,
+        ];
+        if ($this->datosExtras) {
+            $with = array_merge($with, $this->datosExtras);
+        }
         return new Content(
             view: 'emails.boleta-compra',
-            with: [
-                'compra' => $this->compra,
-                'usuario' => $this->compra->usuario,
-                'evento' => $this->compra->evento,
-                'detalles' => $this->compra->detalles,
-                'datosPago' => $this->datosPago,
-            ],
+            with: $with,
         );
     }
 
@@ -88,7 +94,11 @@ class BoletaCompraMail extends Mailable
                 'total' => $this->compra->total,
                 'metodo_pago' => $this->datosPago['metodo'] ?? 'No especificado',
                 'datos_pago' => $this->datosPago['detalles'] ?? null,
+                'forma_entrega' => $this->compra->formato_entrega,
             ];
+            if ($this->datosExtras) {
+                $datosBoleta = array_merge($datosBoleta, $this->datosExtras);
+            }
 
             // Generar el PDF de la boleta
             $pdf = Pdf::loadView('usuario.boleta_pdf', $datosBoleta);

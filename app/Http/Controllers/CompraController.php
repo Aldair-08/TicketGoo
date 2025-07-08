@@ -122,8 +122,27 @@ class CompraController extends Controller
             'detalles' => $detallesPago,
         ];
 
+        // Si vienen datos adicionales, pásalos al email
+        $datosExtras = null;
+        if ($request->has(['nombre_cuenta','dni','correo','evento','fecha','ubicacion','entradas','subtotal_entradas','costo_entrega','total','fecha_pago','forma_entrega'])) {
+            $datosExtras = [
+                'nombre_cuenta' => $request->nombre_cuenta,
+                'dni' => $request->dni,
+                'correo' => $request->correo,
+                'evento' => $request->evento,
+                'fecha' => $request->fecha,
+                'ubicacion' => $request->ubicacion,
+                'entradas' => $request->entradas,
+                'subtotal_entradas' => $request->subtotal_entradas,
+                'costo_entrega' => $request->costo_entrega,
+                'total' => $request->total,
+                'fecha_pago' => $request->fecha_pago,
+                'forma_entrega' => $request->forma_entrega,
+            ];
+        }
+
         // Enviar boleta automáticamente
-        $boletaEnviada = $this->enviarBoletaAutomatica($compra->id, $datosPagoCompletos);
+        $boletaEnviada = $this->enviarBoletaAutomatica($compra->id, $datosPagoCompletos, $datosExtras);
 
         $mensaje = '¡Pago realizado con éxito!';
         if ($boletaEnviada) {
@@ -167,8 +186,27 @@ class CompraController extends Controller
             'detalles' => $request->datos_pago ? json_encode($request->datos_pago) : null,
         ];
 
+        // Si vienen datos adicionales, pásalos al email
+        $datosExtras = null;
+        if ($request->has(['nombre_cuenta','dni','correo','evento','fecha','ubicacion','entradas','subtotal_entradas','costo_entrega','total','fecha_pago','forma_entrega'])) {
+            $datosExtras = [
+                'nombre_cuenta' => $request->nombre_cuenta,
+                'dni' => $request->dni,
+                'correo' => $request->correo,
+                'evento' => $request->evento,
+                'fecha' => $request->fecha,
+                'ubicacion' => $request->ubicacion,
+                'entradas' => $request->entradas,
+                'subtotal_entradas' => $request->subtotal_entradas,
+                'costo_entrega' => $request->costo_entrega,
+                'total' => $request->total,
+                'fecha_pago' => $request->fecha_pago,
+                'forma_entrega' => $request->forma_entrega,
+            ];
+        }
+
         // Enviar boleta automáticamente
-        $boletaEnviada = $this->enviarBoletaAutomatica($compra->id, $datosPago);
+        $boletaEnviada = $this->enviarBoletaAutomatica($compra->id, $datosPago, $datosExtras);
 
         $mensaje = '¡Pago realizado exitosamente!';
         if ($boletaEnviada) {
@@ -350,44 +388,80 @@ class CompraController extends Controller
             $eventoId = null;
             $total = 0;
             $tickets = [];
+            $formaEntrega = $request->forma_entrega ?? 'correo';
+            $costoEntrega = 0;
             
-            foreach ($request->entradas as $entradaId => $cantidad) {
-                $entrada = \App\Models\Entrada::find($entradaId);
-                if (!$entrada || $entrada->stock < $cantidad) {
-                    throw new \Exception('Stock insuficiente para una de las entradas.');
+            // Procesar entradas si existen
+            if ($request->entradas && count($request->entradas) > 0) {
+                foreach ($request->entradas as $entradaId => $cantidad) {
+                    $entrada = \App\Models\Entrada::find($entradaId);
+                    if (!$entrada || $entrada->stock < $cantidad) {
+                        throw new \Exception('Stock insuficiente para una de las entradas.');
+                    }
+                    
+                    // Obtener el evento_id de la primera entrada
+                    if ($eventoId === null) {
+                        $eventoId = $entrada->evento_id;
+                    }
+                    
+                    // Calcular total y preparar tickets
+                    $subtotal = $cantidad * $entrada->precio;
+                    $total += $subtotal;
+                    
+                    $tickets[$entrada->tipo] = [
+                        'cantidad' => $cantidad,
+                        'precio' => $entrada->precio,
+                        'subtotal' => $subtotal,
+                    ];
+                    
+                    $entrada->stock -= $cantidad;
+                    $entrada->save();
                 }
-                
-                // Obtener el evento_id de la primera entrada
-                if ($eventoId === null) {
-                    $eventoId = $entrada->evento_id;
+            }
+            
+            // Procesar promoción si existe
+            if ($request->promocion_id) {
+                $promocion = \App\Models\Promocion::find($request->promocion_id);
+                if ($promocion) {
+                    // Si no hay evento_id de entradas, obtenerlo de la promoción
+                    if ($eventoId === null) {
+                        $eventoId = $promocion->id_evento;
+                    }
+                    
+                    // Agregar el valor de la promoción al total
+                    $total += $promocion->valor ?? 0;
+                    
+                    // Crear un detalle para la promoción
+                    $tickets['PROMOCION'] = [
+                        'cantidad' => 1,
+                        'precio' => $promocion->valor ?? 0,
+                        'subtotal' => $promocion->valor ?? 0,
+                    ];
                 }
-                
-                // Calcular total y preparar tickets
-                $subtotal = $cantidad * $entrada->precio;
-                $total += $subtotal;
-                
-                $tickets[$entrada->tipo] = [
-                    'cantidad' => $cantidad,
-                    'precio' => $entrada->precio,
-                    'subtotal' => $subtotal,
-                ];
-                
-                $entrada->stock -= $cantidad;
-                $entrada->save();
+            }
+            
+            // Costo de entrega
+            if ($formaEntrega === 'tienda') {
+                $costoEntrega = 10;
+                $total += $costoEntrega;
+            }
+            
+            // Verificar que tenemos un evento_id
+            if ($eventoId === null) {
+                throw new \Exception('No se pudo determinar el evento para la compra.');
             }
             
             // Guardar el evento_id y tickets en la sesión
-            if ($eventoId) {
-                session(['evento_id' => $eventoId, 'tickets' => $tickets, 'total' => $total]);
-            }
+            session(['evento_id' => $eventoId, 'tickets' => $tickets, 'total' => $total]);
             
             // Crear la compra
             $compra = Compra::create([
                 'usuario_id' => Auth::id(),
                 'evento_id' => $eventoId,
+                'promocion_id' => $request->promocion_id ?? null,
                 'total' => $total,
                 'estado' => 'pendiente',
-                'formato_entrega' => 'eticket',
+                'formato_entrega' => $formaEntrega,
             ]);
             
             // Crear los detalles de la compra
@@ -398,6 +472,17 @@ class CompraController extends Controller
                     'cantidad' => $ticket['cantidad'],
                     'precio_unitario' => $ticket['precio'],
                     'subtotal' => $ticket['subtotal'],
+                ]);
+            }
+            
+            // Si hay costo de entrega, agregarlo como detalle
+            if ($costoEntrega > 0) {
+                CompraDetalle::create([
+                    'compra_id' => $compra->id,
+                    'tipo_ticket' => 'ENTREGA',
+                    'cantidad' => 1,
+                    'precio_unitario' => $costoEntrega,
+                    'subtotal' => $costoEntrega,
                 ]);
             }
             
@@ -425,11 +510,18 @@ class CompraController extends Controller
     {
         $usuarioId = Auth::id();
         
-        // Obtener todas las compras del usuario con sus detalles y evento
-        $compras = Compra::with(['detalles', 'evento'])
+        // Obtener todas las compras del usuario con evento y promoción
+        $compras = Compra::with(['evento', 'promocion'])
             ->where('usuario_id', $usuarioId)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Cargar detalles manualmente para cada compra
+        foreach($compras as $compra) {
+            $compra->detalles = \DB::table('compra_detalles')
+                ->where('compra_id', $compra->id)
+                ->get();
+        }
 
         return view('usuario.compras', compact('compras'));
     }
@@ -482,7 +574,7 @@ class CompraController extends Controller
     /**
      * Enviar boleta de compra automáticamente después del pago
      */
-    public function enviarBoletaAutomatica($compra_id, $datosPago = null)
+    public function enviarBoletaAutomatica($compra_id, $datosPago = null, $datosExtras = null)
     {
         try {
             // Buscar la compra con todas sus relaciones
@@ -501,7 +593,7 @@ class CompraController extends Controller
             }
 
             // Enviar la boleta
-            Mail::to($compra->usuario->email)->send(new BoletaCompraMail($compra, $datosPago));
+            Mail::to($compra->usuario->email)->send(new BoletaCompraMail($compra, $datosPago, $datosExtras));
 
             \Log::info('Boleta enviada exitosamente para compra: ' . $compra_id);
             return true;

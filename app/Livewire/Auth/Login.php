@@ -31,18 +31,38 @@ class Login extends Component
      */
     public function login(): void
     {
-        $this->validate();
+        $this->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+            'g_recaptcha_response' => ['required', 'string'],
+        ], [
+            'email.required' => 'Por favor, ingrese su correo electrónico.',
+            'email.email' => 'Ingrese un correo electrónico válido.',
+            'password.required' => 'Por favor, ingrese su contraseña.',
+            'g_recaptcha_response.required' => 'Por favor, complete la verificación de seguridad.',
+        ]);
 
         // Verificar reCAPTCHA
         $this->verifyRecaptcha();
 
         $this->ensureIsNotRateLimited();
 
+        // Verificar si el correo existe en la base de datos
+        if (! \App\Models\User::where('email', $this->email)->exists()) {
+            $this->g_recaptcha_response = ''; // Reiniciar reCAPTCHA
+            $this->dispatch('recaptcha-reset'); // Disparar evento para reinicio inmediato
+            throw ValidationException::withMessages([
+                'email' => 'El correo electrónico ingresado no está registrado.',
+            ]);
+        }
+
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             RateLimiter::hit($this->throttleKey());
+            $this->g_recaptcha_response = ''; // Reiniciar reCAPTCHA
+            $this->dispatch('recaptcha-reset'); // Disparar evento para reinicio inmediato
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'password' => 'La contraseña ingresada es incorrecta.',
             ]);
         }
 

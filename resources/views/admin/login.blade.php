@@ -10,14 +10,6 @@
                 <div class="text-green-600 text-sm mb-4">{{ session('status') }}</div>
             @endif
 
-            @if ($errors->any())
-                <div class="text-red-600 text-sm mb-4">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            @endif
-
             <form method="POST" action="{{ route('admin.login.post') }}" class="flex flex-col space-y-6">
                 @csrf
 
@@ -25,7 +17,9 @@
                     <label class="text-gray-600 text-sm font-normal" for="email">Correo electrónico</label>
                     <input
                         class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                        id="email" name="email" type="email" placeholder="Ej: jose@gmail.com" required />
+                        id="email" name="email" type="email" placeholder="Correo electrónico" required 
+                        value="{{ old('email') }}" />
+                    @error('email') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="flex flex-col space-y-1">
@@ -33,6 +27,7 @@
                     <input
                         class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
                         id="password" name="password" type="password" placeholder="Contraseña" required />
+                    @error('password') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- reCAPTCHA -->
@@ -49,6 +44,15 @@
                     Iniciar Sesión
                 </button>
             </form>
+
+            <script>
+                // Reiniciar reCAPTCHA cuando hay errores
+                @if($errors->any())
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                @endif
+            </script>
         </section>
 
         <section class="flex-1 max-w-lg">

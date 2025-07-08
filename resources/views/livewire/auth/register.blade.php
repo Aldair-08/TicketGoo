@@ -11,7 +11,8 @@
                 <label class="text-sm font-semibold text-gray-600" for="nombres">Nombres</label>
                 <input
                     class="border border-yellow-500 rounded px-3 py-2 w-full text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="nombres" type="text" placeholder="Ej: JOSE" required wire:model.defer="nombres" />
+                    id="nombres" type="text" placeholder="Ingrese su nombre" required wire:model.defer="nombres"
+                    oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" />
                 @error('nombres')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -22,7 +23,9 @@
                 <label class="text-sm font-semibold text-gray-600" for="apellidos">Apellidos</label>
                 <input
                     class="border border-yellow-500 rounded px-3 py-2 w-full text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="apellidos" type="text" placeholder="Ej: MUÑOZ" required wire:model.defer="apellidos" />
+                    id="apellidos" type="text" placeholder="Ingrese su apellido" required
+                    wire:model.defer="apellidos"
+                    oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" />
                 @error('apellidos')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -33,7 +36,7 @@
                 <label class="text-sm font-semibold text-gray-600" for="correo">Correo electrónico</label>
                 <input
                     class="border border-yellow-500 rounded px-3 py-2 w-full text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="correo" type="email" placeholder="Ej: jose@gmail.com" required wire:model.defer="correo" />
+                    id="correo" type="email" placeholder="Correo electrónico" required wire:model.defer="correo" />
                 @error('correo')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -44,7 +47,10 @@
                 <label class="text-sm font-semibold text-gray-600" for="celular">Celular</label>
                 <input
                     class="border border-yellow-500 rounded px-3 py-2 w-full text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="celular" type="tel" placeholder="+51 945 567 921" required wire:model.defer="celular" />
+                    id="celular" type="text" placeholder="Número de celular" maxlength="11" required
+                    wire:model.defer="celular" inputmode="numeric"
+                    oninput="let val = this.value.replace(/[^0-9]/g, '').slice(0,9);
+                        this.value = val.replace(/(\d{3})(\d{3})(\d{0,3})/, function(_, a, b, c){ return a + (b ? ' ' + b : '') + (c ? ' ' + c : ''); });" />
                 @error('celular')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -69,8 +75,9 @@
                 <label class="text-sm font-semibold text-gray-600" for="dni" autocomplete="off">DNI</label>
                 <input
                     class="border border-yellow-500 rounded px-3 py-2 w-full text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="dni" type="text" placeholder="Ej: 33333333" maxlength="8" required
-                    wire:model.defer="dni" />
+                    id="dni" type="text" placeholder="Número de dni" maxlength="8" pattern="\d{8}" required
+                    wire:model.defer="dni" inputmode="numeric"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,8)" />
                 @error('dni')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -156,8 +163,20 @@
 
             <!-- Botón -->
             <button type="submit"
-                class="w-full text-center bg-yellow-500 hov<<<<<<<<<<<<<<<er:bg-yellow-600 text-white font-semibold py-2 px-4 rounded shadow">Registrarme</button>
+                class="w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded shadow">Registrarme</button>
         </form>
+
+        <script>
+            // Escuchar evento para reiniciar reCAPTCHA inmediatamente
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('recaptcha-reset', () => {
+                    // Reiniciar reCAPTCHA inmediatamente
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                });
+            });
+        </script>
     </section>
 
     <!-- Imagen decorativa -->

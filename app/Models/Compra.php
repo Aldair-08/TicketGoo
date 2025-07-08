@@ -9,7 +9,7 @@ class Compra extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['usuario_id', 'evento_id', 'total', 'estado', 'formato_entrega', 'fecha_pago'];
+    protected $fillable = ['usuario_id', 'evento_id', 'promocion_id', 'total', 'estado', 'formato_entrega', 'fecha_pago'];
 
     protected $casts = [
         'created_at' => 'datetime',
@@ -34,7 +34,7 @@ class Compra extends Model
     // Relación con CompraDetalle
     public function detalles()
     {
-        return $this->hasMany(CompraDetalle::class, 'compra_id');
+        return $this->hasMany(CompraDetalle::class, 'compra_id', 'id');
     }
 
     public function usuario()
@@ -45,6 +45,12 @@ class Compra extends Model
     public function evento()
     {
         return $this->belongsTo(Evento::class, 'evento_id', 'id_evento');
+    }
+
+    // Relación con Promocion
+    public function promocion()
+    {
+        return $this->belongsTo(Promocion::class, 'promocion_id', 'id_promocion');
     }
 
     // Método para obtener la fecha de compra formateada

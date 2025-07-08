@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('compra_detalles', function (Blueprint $table) {
-            $table->decimal('subtotal', 8, 2)->after('precio_unitario');
+            // Verificar si la columna subtotal ya existe antes de agregarla
+            if (!Schema::hasColumn('compra_detalles', 'subtotal')) {
+                $table->decimal('subtotal', 8, 2)->after('precio_unitario');
+            }
         });
     }
 
@@ -22,7 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('compra_detalles', function (Blueprint $table) {
-            $table->dropColumn('subtotal');
+            // Verificar si la columna existe antes de eliminarla
+            if (Schema::hasColumn('compra_detalles', 'subtotal')) {
+                $table->dropColumn('subtotal');
+            }
         });
     }
 };

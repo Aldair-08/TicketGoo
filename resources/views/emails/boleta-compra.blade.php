@@ -103,30 +103,67 @@
         <div class="titulo">Boleto de compra</div>
 
         <div class="seccion">
-            <div><span class="label">Nombre de cuenta:</span> <span class="value">{{ $compra->usuario->name }}</span>
+            <div><span class="label">Nombre de cuenta:</span> <span class="value">{{ $nombre_cuenta ?? $compra->usuario->name }}</span>
             </div>
-            <div><span class="label">DNI:</span> <span class="value">{{ $compra->usuario->dni }}</span></div>
-            <div><span class="label">Correo:</span> <span class="value">{{ $compra->usuario->email }}</span></div>
+            <div><span class="label">DNI:</span> <span class="value">{{ $dni ?? $compra->usuario->dni }}</span></div>
+            <div><span class="label">Correo:</span> <span class="value">{{ $correo ?? $compra->usuario->email }}</span></div>
             <div><span class="label">Evento:</span> <span
-                    class="value">{{ $compra->evento->nombre ?? 'Evento no disponible' }}</span></div>
+                    class="value">{{ $evento ?? ($compra->evento->nombre ?? 'Evento no disponible') }}</span></div>
             <div><span class="label">Fecha del evento:</span> <span
-                    class="value">{{ $compra->evento->fecha_evento_formateada ?? 'Por definir' }}</span></div>
+                    class="value">{{ $fecha ?? ($compra->evento->fecha_evento_formateada ?? 'Por definir') }}</span></div>
             <div><span class="label">Ubicación:</span> <span
-                    class="value">{{ $compra->evento->ubicacion ?? 'Por definir' }}</span></div>
+                    class="value">{{ $ubicacion ?? ($compra->evento->ubicacion ?? 'Por definir') }}</span></div>
             <div><span class="label">Fecha de pago:</span> <span
-                    class="value">{{ $compra->fecha_pago ? $compra->fecha_pago->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</span>
+                    class="value">{{ $fecha_pago ?? ($compra->fecha_pago ? $compra->fecha_pago->format('d/m/Y H:i') : now()->format('d/m/Y H:i')) }}</span>
             </div>
         </div>
 
         <div class="seccion">
             <div class="label">Entradas compradas:</div>
             <ul>
-                @foreach ($compra->detalles as $detalle)
-                    <li>{{ $detalle->cantidad }} {{ strtoupper($detalle->tipo_ticket) }} - S/.
-                        {{ number_format($detalle->cantidad * $detalle->precio_unitario, 2) }}</li>
-                @endforeach
+                @if(isset($entradas))
+                    @foreach ($entradas as $entrada)
+                        <li>{{ $entrada['cantidad'] }} {{ $entrada['tipo'] }} - S/.
+                            {{ number_format($entrada['subtotal'], 2) }}</li>
+                    @endforeach
+                @else
+                    @foreach ($compra->detalles as $detalle)
+                        <li>{{ $detalle->cantidad }} {{ strtoupper($detalle->tipo_ticket) }} - S/.
+                            {{ number_format($detalle->cantidad * $detalle->precio_unitario, 2) }}</li>
+                    @endforeach
+                @endif
             </ul>
-            <div class="total">TOTAL: S/. {{ number_format($compra->total, 2) }}</div>
+            @if(isset($subtotal_entradas) && isset($costo_entrega))
+                <div style="margin-top: 10px; padding: 5px 0;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Subtotal entradas:</span>
+                        <span>S/. {{ number_format($subtotal_entradas, 2) }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Costo de entrega:</span>
+                        <span>S/. {{ number_format($costo_entrega, 2) }}</span>
+                    </div>
+                </div>
+                <div class="total">TOTAL: S/. {{ number_format($total, 2) }}</div>
+            @else
+                @php
+                    $subtotal_entradas = $compra->detalles->sum(function($detalle) {
+                        return $detalle->cantidad * $detalle->precio_unitario;
+                    });
+                    $costo_entrega = $compra->formato_entrega == 'retiro' ? 10 : 0;
+                @endphp
+                <div style="margin-top: 10px; padding: 5px 0;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Subtotal entradas:</span>
+                        <span>S/. {{ number_format($subtotal_entradas, 2) }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Costo de entrega:</span>
+                        <span>S/. {{ number_format($costo_entrega, 2) }}</span>
+                    </div>
+                </div>
+                <div class="total">TOTAL: S/. {{ number_format($compra->total, 2) }}</div>
+            @endif
         </div>
 
         <div class="seccion">
@@ -137,6 +174,29 @@
                     {!! is_string($datosPago['detalles']) ? $datosPago['detalles'] : json_encode($datosPago['detalles'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!}
                 </div>
             @endif
+        </div>
+
+        <div class="seccion">
+            <div class="label">Forma de entrega:</div>
+            <span class="value">
+                @if(isset($forma_entrega))
+                    @if($forma_entrega == 'eticket')
+                        E-Ticket por correo electrónico (S/ 0)
+                    @elseif($forma_entrega == 'retiro')
+                        Retiro en tienda (Lima - Santa Anita - Mall Aventuras) (S/ 10)
+                    @else
+                        {{ ucfirst($forma_entrega) }}
+                    @endif
+                @else
+                    @if($compra->formato_entrega == 'eticket')
+                        E-Ticket por correo electrónico (S/ 0)
+                    @elseif($compra->formato_entrega == 'retiro')
+                        Retiro en tienda (Lima - Santa Anita - Mall Aventuras) (S/ 10)
+                    @else
+                        {{ ucfirst($compra->formato_entrega ?? 'No especificado') }}
+                    @endif
+                @endif
+            </span>
         </div>
 
         <div class="document-section">

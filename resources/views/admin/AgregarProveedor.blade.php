@@ -13,7 +13,7 @@
                 <label for="nombre" class="w-32 text-gray-700 font-semibold">Nombre</label>
                 <input type="text" id="nombre" name="nombre"
                     class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
-                    placeholder="Ingresa el nombre del encargado">
+                    placeholder="Ingresar nombre">
             </div>
 
 
@@ -21,21 +21,25 @@
                 <label for="correo" class="w-32 text-gray-700 font-semibold">Correo</label>
                 <input type="email" name="correo" id="correo"
                     class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
-                    placeholder="Ingresa el correo del proveedor" required>
+                    placeholder="Ingresar correo electrónico" required>
             </div>
 
             <div class="flex items-center mb-4">
                 <label for="telefono" class="w-32 text-gray-700 font-semibold">Teléfono</label>
-                <input type="number" name="telefono" id="telefono"
+                <input type="text" name="telefono" id="telefono"
                     class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
-                    placeholder="Ingresa el teléfono del proveedor">
+                    placeholder="Ingresar numero de telefono"
+                    maxlength="11"
+                    oninput="let val = this.value.replace(/[^0-9]/g, '').slice(0,9);
+                        this.value = val.replace(/(\d{3})(\d{3})(\d{0,3})/, function(_, a, b, c){ return a + (b ? ' ' + b : '') + (c ? ' ' + c : ''); });"
+                    inputmode="numeric">
             </div>
 
             <div class="flex items-center mb-4">
                 <label for="empresa" class="w-32 text-gray-700 font-semibold">Empresa</label>
                 <input type="text" name="empresa" id="empresa"
                     class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
-                    placeholder="Ingresa la empresa del proveedor">
+                    placeholder="Ingresar nombre de la empresa">
             </div>
 
             <div class="flex items-center mb-6">

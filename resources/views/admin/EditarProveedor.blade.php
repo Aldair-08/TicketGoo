@@ -27,7 +27,11 @@
             <input type="text" name="telefono" id="telefono"
                 value="{{ old('telefono', $proveedor->telefono) }}"
                 class="flex-1 border border-yellow-500 px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-yellow-400"
-                placeholder="Ingresa el teléfono del proveedor">
+                placeholder="Ingresa el teléfono del proveedor"
+                maxlength="11"
+                oninput="let val = this.value.replace(/[^0-9]/g, '').slice(0,9);
+                    this.value = val.replace(/(\d{3})(\d{3})(\d{0,3})/, function(_, a, b, c){ return a + (b ? ' ' + b : '') + (c ? ' ' + c : ''); });"
+                inputmode="numeric">
         </div>
 
         <div class="flex items-center mb-4">

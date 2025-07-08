@@ -45,12 +45,41 @@
                 </li>
             @endforeach
         </ul>
+        @if(isset($subtotal_entradas) && isset($costo_entrega))
+            <div style="margin-top: 10px;">
+                <div>Subtotal entradas: S/. {{ number_format($subtotal_entradas, 2) }}</div>
+                <div>Costo de entrega: S/. {{ number_format($costo_entrega, 2) }}</div>
+            </div>
+        @elseif(isset($forma_entrega))
+            @php
+                $subtotal_entradas = collect($entradas)->sum('subtotal');
+                $costo_entrega = $forma_entrega == 'retiro' ? 10 : 0;
+            @endphp
+            <div style="margin-top: 10px;">
+                <div>Subtotal entradas: S/. {{ number_format($subtotal_entradas, 2) }}</div>
+                <div>Costo de entrega: S/. {{ number_format($costo_entrega, 2) }}</div>
+            </div>
+        @endif
         <div class="label">TOTAL: S/. {{ number_format($total, 2) }}</div>
     </div>
     <div class="seccion">
         <div class="label">Método de pago:</div> {{ $metodo_pago }}
         @if (isset($datos_pago))
             <div>{!! $datos_pago !!}</div>
+        @endif
+    </div>
+    <div class="seccion">
+        <div class="label">Forma de entrega:</div>
+        @if(isset($forma_entrega))
+            @if($forma_entrega == 'eticket')
+                E-Ticket por correo electrónico (S/ 0)
+            @elseif($forma_entrega == 'retiro')
+                Retiro en tienda (Lima - Santa Anita - Mall Aventuras) (S/ 10)
+            @else
+                {{ ucfirst($forma_entrega) }}
+            @endif
+        @else
+            No especificado
         @endif
     </div>
 </body>

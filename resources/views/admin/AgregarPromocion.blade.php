@@ -91,28 +91,35 @@
                 const valorInput = document.getElementById('valor');
 
                 function ajustarValidacion() {
-                    const tipo = tipoInput.value.toLowerCase();
+                    const tipo = tipoInput.value;
 
-                    if (tipo.includes('porcentaje')) {
+                    if (tipo === 'MONTO') {
                         valorInput.type = 'number';
                         valorInput.min = 0;
-                        valorInput.max = 100;
-                        valorInput.placeholder = 'Ingrese un valor entre 0 y 100';
-                    } else if (tipo.includes('monto')) {
-                        valorInput.type = 'number';
-                        valorInput.min = 0;
+                        valorInput.step = '0.01';
                         valorInput.removeAttribute('max');
-                        valorInput.placeholder = 'Ingrese el monto del descuento';
+                        valorInput.placeholder = 'Ingrese el monto de las entradas';
+                        valorInput.disabled = false;
+                    } else if (tipo === '2x1') {
+                        valorInput.type = 'number';
+                        valorInput.min = 0;
+                        valorInput.step = '0.01';
+                        valorInput.placeholder = 'Ingrese el monto del 2x1';
+                        valorInput.removeAttribute('max');
+                        valorInput.disabled = false;
                     } else {
                         valorInput.type = 'text';
-                        valorInput.placeholder = 'Este tipo no requiere un valor numérico';
+                        valorInput.placeholder = 'Seleccione primero el tipo de promoción';
                         valorInput.removeAttribute('min');
                         valorInput.removeAttribute('max');
+                        valorInput.removeAttribute('step');
+                        valorInput.disabled = true;
+                        valorInput.value = '';
                     }
                 }
 
-                tipoInput.addEventListener('input', ajustarValidacion);
-                ajustarValidacion(); // Al cargar
+                tipoInput.addEventListener('change', ajustarValidacion);
+                ajustarValidacion();
             });
         </script>
     </div>

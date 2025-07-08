@@ -29,11 +29,42 @@
                                 </td>
                             </tr>
                             <tr class="bg-white text-left text-sm font-bold uppercase text-[#222] border-b border-[#222]">
+                                <td class="px-4 py-2 font-semibold">Promoción Aplicada</td>
+                                <td class="px-4 py-2">
+                                    @if ($compra->promocion)
+                                        <span class="text-green-600 font-semibold">{{ $compra->promocion->nombre }}</span>
+                                        @if($compra->promocion->descripcion)
+                                            <br><span class="text-xs text-gray-600">{{ $compra->promocion->descripcion }}</span>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-500">Sin promoción</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr class="bg-white text-left text-sm font-bold uppercase text-[#222] border-b border-[#222]">
                                 <td class="px-4 py-2 font-semibold">Tickets</td>
                                 <td class="px-4 py-2">
-                                    @foreach ($compra->detalles as $detalle)
-                                        {{ $detalle->cantidad }}x {{ $detalle->tipo_ticket }}<br>
-                                    @endforeach
+                                    @if($compra->detalles && count($compra->detalles) > 0)
+                                        <div class="space-y-2">
+                                            @foreach ($compra->detalles as $detalle)
+                                                <div class="border-b border-gray-200 pb-1">
+                                                    <div class="font-semibold">{{ $detalle->cantidad }}x {{ $detalle->tipo_ticket }}</div>
+                                                    @if($detalle->precio_unitario)
+                                                        <div class="text-sm text-gray-600">
+                                                            Precio: S/. {{ number_format($detalle->precio_unitario, 2) }} c/u
+                                                        </div>
+                                                    @endif
+                                                    @if($detalle->subtotal)
+                                                        <div class="text-sm font-medium text-blue-600">
+                                                            Subtotal: S/. {{ number_format($detalle->subtotal, 2) }}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-gray-500">No hay detalles disponibles</span>
+                                    @endif
                                 </td>
                             </tr>
                             <tr class="bg-white text-left text-sm font-bold uppercase text-[#222] border-b border-[#222]">
@@ -41,7 +72,7 @@
                                 <td class="px-4 py-2">Transferencia Bancaria</td>
                             </tr>
                             <tr class="bg-white text-left text-sm font-bold uppercase text-[#222] border-b border-[#222]">
-                                <td class="px-4 py-2 font-semibold">Tipo de envío</td>
+                                <td class="px-4 py-2 font-semibold">Forma de Entrega</td>
                                 <td class="px-4 py-2">{{ ucfirst($compra->formato_entrega ?? 'No especificado') }}</td>
                             </tr>
                             <tr class="bg-white text-left text-sm font-bold uppercase text-[#222] border-b border-[#222]">

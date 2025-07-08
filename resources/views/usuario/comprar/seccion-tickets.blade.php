@@ -26,6 +26,30 @@
         </div>
 
         <div class="mb-4">
+            {{-- Mensaje de instrucciones --}}
+            <div id="mensaje-instrucciones" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">
+                            Instrucciones para continuar:
+                        </h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Selecciona la cantidad de tickets que deseas comprar</li>
+                                <li>O elige una promoción disponible (si aplica)</li>
+                                <li>Presiona el botón <strong>"Agregar"</strong> para confirmar tu selección</li>
+                                <li>Una vez agregado, podrás continuar al siguiente paso</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex flex-col gap-2" id="entradas-lista">
                 @foreach ($evento->entradas as $entrada)
                     @php
@@ -62,9 +86,12 @@
             </div>
 
             <button id="agregarBtn"
-                class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-8 rounded-full shadow mt-4">
+                class="bg-yellow-400 text-black font-bold py-2 px-8 rounded-full shadow mt-4 opacity-50 cursor-not-allowed"
+                disabled>
                 Agregar
             </button>
+
+
         </div>
 
         {{-- Resumen --}}
@@ -80,9 +107,35 @@
                 Volver
             </button>
             <button id="continuarBtn"
-                class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded-full shadow mt-4">
+                class="bg-blue-700 text-white font-bold py-2 px-8 rounded-full shadow mt-4 opacity-50 cursor-not-allowed"
+                disabled>
                 Continuar
             </button>
+        </div>
+    </div>
+
+    {{-- Mensaje flotante de éxito --}}
+    <div id="mensaje-exito" class="fixed top-4 right-4 z-50 opacity-0 invisible transition-all duration-300 ease-in-out">
+        <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg max-w-sm">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium">
+                        ¡Perfecto! Tu selección ha sido agregada.
+                    </p>
+                </div>
+                <div class="ml-4 flex-shrink-0">
+                    <button id="cerrar-mensaje" class="text-white hover:text-green-100 focus:outline-none">
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </section>

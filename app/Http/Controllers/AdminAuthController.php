@@ -20,11 +20,20 @@ class AdminAuthController extends Controller
             'password' => 'required',
             'g_recaptcha_response' => 'required',
         ], [
-            'g_recaptcha_response.required' => 'Por favor, completa el reCAPTCHA.',
+            'email.required' => 'Por favor, ingrese su correo electrónico.',
+            'email.email' => 'Ingrese un correo electrónico válido.',
+            'password.required' => 'Por favor, ingrese su contraseña.',
+            'g_recaptcha_response.required' => 'Por favor, complete la verificación de seguridad.',
         ]);
 
         // Verificar reCAPTCHA
         $this->verifyRecaptcha($request->input('g_recaptcha_response'));
+
+        // Verificar si el correo existe en la base de datos
+        if (! \App\Models\User::where('email', $request->email)->exists()) {
+            return back()->withErrors(['email' => 'El correo electrónico ingresado no está registrado.'])
+                        ->withInput($request->except('password', 'g_recaptcha_response'));
+        }
 
         $credentials = $request->only('email', 'password');
 
@@ -34,11 +43,13 @@ class AdminAuthController extends Controller
                 return redirect()->intended(route('admin.dashboard'));
             } else {
                 Auth::logout();
-                return back()->withErrors(['email' => 'No tienes permisos de administrador.']);
+                return back()->withErrors(['email' => 'No tiene permisos de administrador.'])
+                            ->withInput($request->except('password', 'g_recaptcha_response'));
             }
         }
 
-        return back()->withErrors(['email' => 'Las credenciales no son válidas.']);
+        return back()->withErrors(['password' => 'La contraseña ingresada es incorrecta.'])
+                    ->withInput($request->except('password', 'g_recaptcha_response'));
     }
 
     public function logout(Request $request)

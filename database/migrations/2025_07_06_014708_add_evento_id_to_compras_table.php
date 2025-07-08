@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('compras', function (Blueprint $table) {
-            $table->unsignedBigInteger('evento_id')->nullable()->after('usuario_id');
-            $table->foreign('evento_id')->references('id_evento')->on('eventos')->onDelete('set null');
+            // Verificar si la columna evento_id ya existe antes de agregarla
+            if (!Schema::hasColumn('compras', 'evento_id')) {
+                $table->unsignedBigInteger('evento_id')->nullable()->after('usuario_id');
+                $table->foreign('evento_id')->references('id_evento')->on('eventos')->onDelete('set null');
+            }
         });
     }
 
@@ -23,8 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('compras', function (Blueprint $table) {
-            $table->dropForeign(['evento_id']);
-            $table->dropColumn('evento_id');
+            // Verificar si la columna existe antes de eliminarla
+            if (Schema::hasColumn('compras', 'evento_id')) {
+                $table->dropForeign(['evento_id']);
+                $table->dropColumn('evento_id');
+            }
         });
     }
 };

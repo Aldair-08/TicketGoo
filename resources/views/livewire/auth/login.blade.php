@@ -9,21 +9,13 @@
             <div class="text-green-600 text-sm mb-4">{{ session('status') }}</div>
         @endif
 
-        @if ($errors->any())
-            <div class="text-red-600 text-sm mb-4">
-                @foreach ($errors->all() as $error)
-                    <div>{{ $error }}</div>
-                @endforeach
-            </div>
-        @endif
-
         <form wire:submit.prevent="login" class="flex flex-col space-y-6">
             <!-- Email -->
             <div class="flex flex-col space-y-1">
                 <label class="text-gray-600 text-sm font-normal" for="email">Correo electrónico</label>
                 <input
                     class="border border-yellow-500 rounded px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
-                    id="email" type="email" placeholder="Ej: jose@gmail.com" required
+                    id="email" type="email" placeholder="Correo electrónico" required
                     wire:model="email" />
                 @error('email') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
             </div>
@@ -50,6 +42,18 @@
                 Iniciar Sesión
             </button>
         </form>
+
+        <script>
+            // Escuchar evento para reiniciar reCAPTCHA inmediatamente
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('recaptcha-reset', () => {
+                    // Reiniciar reCAPTCHA inmediatamente
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                });
+            });
+        </script>
     </section>
 
     <section class="flex-1 max-w-lg">
