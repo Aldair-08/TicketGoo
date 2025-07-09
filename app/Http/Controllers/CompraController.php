@@ -375,9 +375,22 @@ class CompraController extends Controller
     public function index($id_evento)
     {
         $evento = \App\Models\Evento::with('entradas')->where('id_evento', $id_evento)->firstOrFail();
+        
+        // Obtener promociones activas del evento
         $promociones = \App\Models\Promocion::where('id_evento', $evento->id_evento)
             ->where('estado', 'ACTIVO')
             ->get();
+        
+        // Filtrar promociones que ya han sido utilizadas por el usuario
+        if (Auth::check()) {
+            $usuarioId = Auth::id();
+            
+            // Filtrar las promociones que no han sido utilizadas por este usuario en este evento
+            $promociones = $promociones->filter(function($promocion) use ($usuarioId, $evento) {
+                return !$promocion->haSidoUsadaPorUsuario($usuarioId, $evento->id_evento);
+            });
+        }
+        
         return view('usuario.comprar', compact('evento', 'promociones'));
     }
 

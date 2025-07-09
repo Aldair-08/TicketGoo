@@ -11,4 +11,4 @@ class RegisteredUserResponse implements RegisterResponseContract
     {
         return redirect(RouteServiceProvider::HOME);
     }
-}
+} 

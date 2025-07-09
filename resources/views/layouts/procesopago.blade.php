@@ -32,7 +32,7 @@
         </form>
     </header>
 
-    <div class="pt-32"> {{-- Ajusta el padding-top según la altura de tu header --}}
+    <div class="pt-32 pb-24"> {{-- Ajusta el padding-top según la altura de tu header --}}
         @yield('contenido')
     </div>
 

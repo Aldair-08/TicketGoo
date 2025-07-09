@@ -11,4 +11,4 @@ class LoginResponse implements LoginResponseContract
     {
         return redirect()->intended(RouteServiceProvider::HOME);
     }
-}
+} 

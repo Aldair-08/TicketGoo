@@ -6,14 +6,43 @@
     // Variable para controlar si se ha agregado algo al resumen
     let resumenAgregado = false;
 
+    // Función para seleccionar promoción al hacer clic en cualquier parte del área
+    function seleccionarPromocion(elemento) {
+        // Desmarcar todas las promociones
+        document.querySelectorAll('input[name="promo_seleccionada"]').forEach(function(radio) {
+            radio.checked = false;
+        });
+        
+        // Remover estilos de selección de todas las promociones
+        document.querySelectorAll('.promo-item').forEach(function(item) {
+            item.classList.remove('bg-yellow-200', 'border-yellow-500');
+            item.classList.add('bg-yellow-50', 'border-yellow-300');
+        });
+        
+        // Marcar la promoción seleccionada
+        const radio = elemento.querySelector('input[name="promo_seleccionada"]');
+        if (radio) {
+            radio.checked = true;
+        }
+        
+        // Agregar estilos de selección
+        elemento.classList.remove('bg-yellow-50', 'border-yellow-300');
+        elemento.classList.add('bg-yellow-200', 'border-yellow-500');
+        
+        // Verificar selección para habilitar/deshabilitar botones
+        verificarSeleccion();
+    }
+
     // Función para verificar si hay elementos seleccionados
     function verificarSeleccion() {
         let hayEntradas = false;
         let hayPromocion = false;
 
-        // Verificar si hay entradas seleccionadas
+        // Verificar si hay entradas seleccionadas (solo las que tienen stock)
         document.querySelectorAll('.cantidad-input').forEach(function(input) {
-            if (parseInt(input.value) > 0) {
+            // Verificar que la entrada padre no tenga la clase sin-stock
+            const entradaItem = input.closest('.entrada-item');
+            if (!entradaItem.classList.contains('sin-stock') && parseInt(input.value) > 0) {
                 hayEntradas = true;
             }
         });
@@ -29,24 +58,91 @@
         if (hayEntradas || hayPromocion) {
             agregarBtn.disabled = false;
             agregarBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            agregarBtn.classList.add('hover:bg-yellow-300');
+            agregarBtn.classList.add('hover:bg-blue-800');
         } else {
             agregarBtn.disabled = true;
             agregarBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            agregarBtn.classList.remove('hover:bg-yellow-300');
+            agregarBtn.classList.remove('hover:bg-blue-800');
         }
     }
 
     // Agregar event listeners para verificar selección
     document.addEventListener('DOMContentLoaded', function() {
-        // Verificar cambios en inputs de cantidad
+        // Verificar cambios en inputs de cantidad (solo los que tienen stock)
         document.querySelectorAll('.cantidad-input').forEach(function(input) {
-            input.addEventListener('input', verificarSeleccion);
+            input.addEventListener('input', function() {
+                // Validar rangos cuando el usuario escribe manualmente
+                const min = parseInt(this.getAttribute('min')) || 0;
+                const max = parseInt(this.getAttribute('max')) || 0;
+                let value = parseInt(this.value) || 0;
+                
+                // Asegurar que el valor esté dentro del rango
+                if (value < min) {
+                    value = min;
+                } else if (value > max) {
+                    value = max;
+                }
+                
+                // Actualizar el valor del input si fue corregido
+                this.value = value;
+                
+                verificarSeleccion();
+            });
+            
+            // Validación adicional cuando el usuario sale del campo
+            input.addEventListener('blur', function() {
+                const min = parseInt(this.getAttribute('min')) || 0;
+                const max = parseInt(this.getAttribute('max')) || 0;
+                let value = parseInt(this.value) || 0;
+                
+                // Si el campo está vacío o no es un número válido, establecer en 0
+                if (isNaN(value) || this.value === '') {
+                    value = 0;
+                }
+                
+                // Asegurar que el valor esté dentro del rango
+                if (value < min) {
+                    value = min;
+                } else if (value > max) {
+                    value = max;
+                }
+                
+                // Actualizar el valor del input
+                this.value = value;
+                
+                verificarSeleccion();
+            });
         });
 
         // Verificar cambios en promociones
         document.querySelectorAll('input[name="promo_seleccionada"]').forEach(function(radio) {
             radio.addEventListener('change', verificarSeleccion);
+        });
+
+        // Configurar botones increase/decrease
+        document.querySelectorAll('.increase').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('.cantidad-input');
+                const max = parseInt(input.getAttribute('max')) || 0;
+                const currentValue = parseInt(input.value) || 0;
+                
+                if (currentValue < max) {
+                    input.value = currentValue + 1;
+                    verificarSeleccion();
+                }
+            });
+        });
+
+        document.querySelectorAll('.decrease').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('.cantidad-input');
+                const currentValue = parseInt(input.value) || 0;
+                
+                if (currentValue > 0) {
+                    input.value = currentValue - 1;
+                    verificarSeleccion();
+                }
+            });
         });
 
         // Verificar estado inicial
@@ -61,6 +157,11 @@
 
         // Procesar entradas
         document.querySelectorAll('.entrada-item').forEach(function(item) {
+            // Verificar si la entrada tiene stock disponible
+            if (item.classList.contains('sin-stock')) {
+                return; // Saltar entradas sin stock
+            }
+            
             const tipo = item.getAttribute('data-tipo');
             const precio = parseFloat(item.getAttribute('data-precio'));
             const cantidadInput = item.querySelector('.cantidad-input');
@@ -103,7 +204,7 @@
         const continuarBtn = document.getElementById('continuarBtn');
         continuarBtn.disabled = false;
         continuarBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        continuarBtn.classList.add('hover:bg-blue-600');
+        continuarBtn.classList.add('hover:bg-blue-800');
 
         // Ocultar mensaje de instrucciones
         const mensajeInstrucciones = document.getElementById('mensaje-instrucciones');
@@ -117,7 +218,7 @@
             // Mostrar el mensaje completamente
             mensajeExito.classList.remove('opacity-0', 'invisible');
             mensajeExito.classList.add('opacity-100', 'visible');
-            
+
             // Ocultar mensaje de éxito después de 4 segundos
             setTimeout(() => {
                 ocultarMensajeExito();
@@ -161,28 +262,28 @@
     // Función para formatear celular YAPE (9 dígitos separados cada 3, debe empezar con 9)
     function formatearCelularYape(input) {
         let valor = input.value.replace(/\D/g, ''); // Solo números
-        
+
         // Si el valor está vacío, permitir que se borre completamente
         if (valor.length === 0) {
             input.value = '';
             return;
         }
-        
+
         // Verificar que empiece con 9 solo si hay contenido
         if (valor.length > 0 && valor[0] !== '9') {
             valor = '9' + valor.substring(1);
         }
-        
+
         // Limitar a 9 dígitos
         valor = valor.substring(0, 9);
-        
+
         // Formatear con espacios cada 3 dígitos solo si hay suficientes dígitos
         if (valor.length >= 6) {
             valor = valor.substring(0, 3) + ' ' + valor.substring(3, 6) + ' ' + valor.substring(6, 9);
         } else if (valor.length >= 3) {
             valor = valor.substring(0, 3) + ' ' + valor.substring(3, 6);
         }
-        
+
         input.value = valor;
     }
 
@@ -274,21 +375,21 @@
     function mostrarErrores(errores) {
         const mensajeError = document.getElementById('mensaje-error');
         const listaErrores = document.getElementById('lista-errores');
-        
+
         if (mensajeError && listaErrores) {
             // Crear lista de errores con números
             let erroresHtml = '';
             errores.forEach((error, index) => {
                 erroresHtml += `<div class="mb-1">${index + 1}. ${error}</div>`;
             });
-            
+
             // Insertar errores en el mensaje
             listaErrores.innerHTML = erroresHtml;
-            
+
             // Mostrar el mensaje
             mensajeError.classList.remove('opacity-0', 'invisible');
             mensajeError.classList.add('opacity-100', 'visible');
-            
+
             // Ocultar mensaje después de 6 segundos (más tiempo para leer errores)
             setTimeout(() => {
                 ocultarMensajeError();
@@ -353,14 +454,14 @@
             let valorAnterior = '';
             celularInput.addEventListener('input', function() {
                 const valorActual = this.value;
-                
+
                 // Si el valor actual es más corto que el anterior, probablemente está borrando
                 if (valorActual.length < valorAnterior.length) {
                     // Permitir el borrado sin formateo inmediato
                     valorAnterior = valorActual;
                     return;
                 }
-                
+
                 formatearCelularYape(this);
                 valorAnterior = this.value;
             });
@@ -422,7 +523,8 @@
 
         document.getElementById('seccion-tickets').classList.add('hidden');
         document.getElementById('seccion-datos-compra').classList.remove('hidden');
-        document.getElementById('resumen-lista-final').innerHTML = document.getElementById('resumen-lista').innerHTML;
+        document.getElementById('resumen-lista-final').innerHTML = document.getElementById('resumen-lista')
+            .innerHTML;
         actualizarResumenFinal();
 
         // Configurar botones eliminar en resumen final
@@ -500,7 +602,7 @@
                     const continuarBtn = document.getElementById('continuarBtn');
                     continuarBtn.disabled = true;
                     continuarBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    continuarBtn.classList.remove('hover:bg-blue-600');
+                    continuarBtn.classList.remove('hover:bg-blue-800');
 
                     // Mostrar mensaje de instrucciones nuevamente
                     const mensajeInstrucciones = document.getElementById('mensaje-instrucciones');
@@ -525,11 +627,13 @@
         if (metodo === 'nibiz') {
             event.preventDefault();
             document.getElementById('modal-nibiz').classList.remove('hidden');
-            document.getElementById('monto-nibiz').textContent = document.getElementById('total-monto-final').textContent;
+            document.getElementById('monto-nibiz').textContent = document.getElementById('total-monto-final')
+                .textContent;
         } else if (metodo === 'yape') {
             event.preventDefault();
             document.getElementById('modal-yape').classList.remove('hidden');
-            document.getElementById('monto-yape').textContent = document.getElementById('total-monto-final').textContent;
+            document.getElementById('monto-yape').textContent = document.getElementById('total-monto-final')
+                .textContent;
         }
     });
 
@@ -537,7 +641,7 @@
     document.getElementById('pagarNibizBtn').addEventListener('click', function() {
         // Validar formulario antes de procesar
         const errores = validarFormularioNibiz();
-        
+
         if (errores.length > 0) {
             mostrarErrores(errores);
             return; // No continuar si hay errores
@@ -553,7 +657,7 @@
     document.getElementById('pagarYapeBtn').addEventListener('click', function() {
         // Validar formulario antes de procesar
         const errores = validarFormularioYape();
-        
+
         if (errores.length > 0) {
             mostrarErrores(errores);
             return; // No continuar si hay errores
@@ -639,7 +743,7 @@
         const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
         let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
         let datosPago = {};
-        
+
         if (metodo === 'nibiz') {
             const nombre = document.getElementById('nibiz-nombre').value;
             const apellido = document.getElementById('nibiz-apellido').value;
@@ -696,13 +800,13 @@
     function ocultarAnimacionCarga() {
         document.getElementById('modal-carga').classList.add('hidden');
         resetearProgreso();
-        
+
         // Limpiar mensaje de éxito si existe
         const mensajeExito = document.getElementById('mensaje-exito');
         if (mensajeExito) {
             mensajeExito.remove();
         }
-        
+
         // Resetear barra de progreso
         const barra = document.getElementById('barra-progreso');
         barra.classList.remove('bg-green-600');
@@ -727,7 +831,7 @@
                     if (index <= paso) {
                         mensaje.classList.remove('opacity-50');
                         mensaje.classList.add('opacity-100');
-                        
+
                         if (index < paso) {
                             // Completado
                             mensaje.innerHTML = mensaje.innerHTML.replace('⏳', '✓');
@@ -742,7 +846,7 @@
                 });
 
                 paso++;
-                
+
                 // Continuar con el siguiente paso después de un delay
                 setTimeout(actualizarProgreso, 800);
             }
@@ -756,14 +860,14 @@
     function resetearProgreso() {
         const barra = document.getElementById('barra-progreso');
         const mensajes = ['mensaje-1', 'mensaje-2', 'mensaje-3', 'mensaje-4'];
-        
+
         barra.style.width = '0%';
-        
+
         mensajes.forEach((mensajeId, index) => {
             const mensaje = document.getElementById(mensajeId);
             mensaje.classList.remove('opacity-100', 'completado', 'activo');
             mensaje.classList.add('opacity-50');
-            
+
             // Resetear iconos
             if (index === 0) {
                 mensaje.innerHTML = '✓ Validando datos de pago';
@@ -783,9 +887,9 @@
         mensajeExito.style.fontWeight = 'bold';
         mensajeExito.style.fontSize = '14px';
         mensajeExito.style.marginTop = '10px';
-        
+
         mensajesProgreso.appendChild(mensajeExito);
-        
+
         // Completar la barra de progreso
         const barra = document.getElementById('barra-progreso');
         barra.style.width = '100%';
@@ -845,7 +949,7 @@
         const metodo = document.querySelector('input[name="metodo_pago"]:checked')?.value || 'nibiz';
         let metodoPago = metodo === 'nibiz' ? 'NIBIZ' : 'YAPE';
         let datosPago = {};
-        
+
         if (metodo === 'nibiz') {
             const nombre = document.getElementById('nibiz-nombre').value;
             const apellido = document.getElementById('nibiz-apellido').value;
@@ -869,36 +973,37 @@
         const evento = "{{ strtoupper($evento->nombre) }}";
         const fecha = "{{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}";
         const ubicacion = "{{ $evento->ubicacion }}";
-        
+
         // Obtener fecha de pago actual
         const ahora = new Date();
-        const opciones = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric', 
-            hour: '2-digit', 
+        const opciones = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
             minute: '2-digit',
             timeZone: 'America/Lima'
         };
         const fechaPago = ahora.toLocaleDateString('es-ES', opciones);
-        
+
         // Obtener forma de entrega
         const formaEntrega = document.querySelector('input[name="entrega"]:checked')?.value || 'correo';
-        
+
         // Procesar entradas para el email
         let entradas = [];
         document.querySelectorAll('#resumen-lista-final li').forEach(function(item) {
             const texto = item.querySelector('span:first-child').textContent;
             const cantidad = parseInt(texto);
             const tipo = texto.replace(/^\d+\s/, '');
-            const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace('S/.', '').trim());
+            const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace('S/.', '')
+                .trim());
             entradas.push({
                 cantidad,
                 tipo,
                 subtotal
             });
         });
-        
+
         // Calcular totales
         const total = parseFloat(document.getElementById('total-monto-final').textContent);
         const subtotalEntradas = entradas.reduce((sum, entrada) => sum + entrada.subtotal, 0);
@@ -934,7 +1039,7 @@
                 if (data.success) {
                     // Mostrar mensaje de éxito
                     mostrarMensajeExito();
-                    
+
                     // Completar animación antes de mostrar confirmación
                     setTimeout(() => {
                         ocultarAnimacionCarga();
@@ -959,25 +1064,26 @@
     function mostrarConfirmacion() {
         document.getElementById('seccion-datos-compra').classList.add('hidden');
         document.getElementById('seccion-confirmado').classList.remove('hidden');
-        
+
         // Quitar los botones "Eliminar" del resumen antes de mostrarlo en la boleta
         let resumenHtml = document.getElementById('resumen-lista-final').innerHTML;
         resumenHtml = resumenHtml.replace(/<button[^>]*eliminar-resumen[^>]*>.*?<\/button>/gi, '');
         document.getElementById('resumen-lista-confirmado').innerHTML = resumenHtml;
-        document.getElementById('total-monto-confirmado').textContent = document.getElementById('total-monto-final').textContent;
+        document.getElementById('total-monto-confirmado').textContent = document.getElementById('total-monto-final')
+            .textContent;
 
         // Mostrar método de pago seleccionado y datos del comprador
         mostrarDatosPago();
-        
+
         // Mostrar detalles del evento
         mostrarDetallesEvento();
-        
+
         // Mostrar fecha de pago
         mostrarFechaPago();
-        
+
         // Mostrar forma de entrega
         mostrarFormaEntrega();
-        
+
         // Mostrar desglose de costos
         mostrarDesgloseCostos();
     }
@@ -989,7 +1095,8 @@
         let datosCompradorHtml = '';
 
         if (metodo === 'nibiz') {
-            metodoHtml = `<img src="{{ asset('images/nibiz.png') }}" alt="NIBIZ" class="h-6 inline"> <span class="font-semibold">NIBIZ</span>`;
+            metodoHtml =
+                `<img src="{{ asset('images/nibiz.png') }}" alt="NIBIZ" class="h-6 inline"> <span class="font-semibold">NIBIZ</span>`;
             const nombre = document.getElementById('nibiz-nombre').value;
             const apellido = document.getElementById('nibiz-apellido').value;
             const email = document.getElementById('nibiz-email').value;
@@ -997,11 +1104,12 @@
                 <div class="mb-2"><span class="font-semibold">Nombre:</span> ${nombre} ${apellido}</div>
                 <div class="mb-2"><span class="font-semibold">Email:</span> ${email}</div>`;
         } else if (metodo === 'yape') {
-            metodoHtml = `<img src="{{ asset('images/yape.png') }}" alt="Yape" class="h-6 inline"> <span class="font-semibold">Yape</span>`;
+            metodoHtml =
+                `<img src="{{ asset('images/yape.png') }}" alt="Yape" class="h-6 inline"> <span class="font-semibold">Yape</span>`;
             const celular = document.getElementById('yape-celular').value;
             datosCompradorHtml = `<div class="mb-2"><span class="font-semibold">Celular Yape:</span> ${celular}</div>`;
         }
-        
+
         document.getElementById('metodo-pago-confirmado').innerHTML = metodoHtml;
         document.getElementById('datos-comprador-confirmado').innerHTML = datosCompradorHtml;
     }
@@ -1020,11 +1128,11 @@
     // Mostrar fecha de pago en la confirmación
     function mostrarFechaPago() {
         const ahora = new Date();
-        const opciones = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric', 
-            hour: '2-digit', 
+        const opciones = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
             minute: '2-digit',
             timeZone: 'America/Lima'
         };
@@ -1036,13 +1144,13 @@
     function mostrarFormaEntrega() {
         const formaEntrega = document.querySelector('input[name="entrega"]:checked')?.value || 'correo';
         let formaEntregaTexto = '';
-        
+
         if (formaEntrega === 'correo') {
             formaEntregaTexto = 'E-Ticket por correo electrónico (S/ 0)';
         } else if (formaEntrega === 'tienda') {
             formaEntregaTexto = 'Retiro en tienda (Lima - Santa Anita - Mall Aventuras) (S/ 10)';
         }
-        
+
         document.getElementById('forma-entrega-confirmado').textContent = formaEntregaTexto;
     }
 
@@ -1051,18 +1159,19 @@
         // Calcular subtotal de entradas
         let subtotalEntradas = 0;
         document.querySelectorAll('#resumen-lista-confirmado li').forEach(function(item) {
-            const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace('S/.', '').trim());
+            const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace('S/.', '')
+                .trim());
             subtotalEntradas += subtotal;
         });
-        
+
         // Calcular costo de entrega
         const formaEntrega = document.querySelector('input[name="entrega"]:checked')?.value || 'correo';
         const costoEntrega = formaEntrega === 'tienda' ? 10 : 0;
-        
+
         // Mostrar valores
         document.getElementById('subtotal-entradas-confirmado').textContent = subtotalEntradas.toFixed(2);
         document.getElementById('costo-entrega-confirmado').textContent = costoEntrega.toFixed(2);
-        
+
         // El total ya se muestra correctamente en total-monto-confirmado
     }
 
@@ -1080,17 +1189,17 @@
         const evento = "{{ strtoupper($evento->nombre) }}";
         const fecha = "{{ \Carbon\Carbon::parse($evento->fecha)->translatedFormat('l, d \d\e F Y H:i') }}";
         const ubicacion = "{{ $evento->ubicacion }}";
-        
+
         // Obtener fecha de pago de la confirmación
         const fechaPago = document.getElementById('fecha-pago-confirmado').textContent.trim();
-        
+
         // Obtener método de pago y datos del comprador de la confirmación
         const metodoPagoElement = document.getElementById('metodo-pago-confirmado');
         const datosCompradorElement = document.getElementById('datos-comprador-confirmado');
-        
+
         let metodoPago = '';
         let datosPago = '';
-        
+
         if (metodoPagoElement.innerHTML.includes('NIBIZ')) {
             metodoPago = 'NIBIZ';
             // Obtener datos de NIBIZ del servidor
@@ -1112,7 +1221,8 @@
             const texto = item.querySelector('span:first-child').textContent;
             const cantidad = parseInt(texto);
             const tipo = texto.replace(/^\d+\s/, '');
-            const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace('S/.', '').trim());
+            const subtotal = parseFloat(item.querySelector('span:nth-child(2)').textContent.replace(
+                'S/.', '').trim());
             entradas.push({
                 cantidad,
                 tipo,
@@ -1122,9 +1232,10 @@
 
         // Obtener total y desglose de costos de la confirmación
         const total = parseFloat(document.getElementById('total-monto-confirmado').textContent);
-        const subtotalEntradas = parseFloat(document.getElementById('subtotal-entradas-confirmado').textContent);
+        const subtotalEntradas = parseFloat(document.getElementById('subtotal-entradas-confirmado')
+            .textContent);
         const costoEntrega = parseFloat(document.getElementById('costo-entrega-confirmado').textContent);
-        
+
         // Obtener forma de entrega de la confirmación
         const formaEntregaTexto = document.getElementById('forma-entrega-confirmado').textContent.trim();
         let formaEntrega = 'correo';
@@ -1168,4 +1279,4 @@
                 window.URL.revokeObjectURL(url);
             });
     });
-</script> 
+</script>
